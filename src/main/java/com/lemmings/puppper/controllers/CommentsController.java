@@ -25,8 +25,7 @@ public class CommentsController {
 
     @PostMapping("/createComment")
     @ResponseBody
-    public AjaxBasicReturn createComment(//@RequestParam("id") Long id,
-                                         @RequestParam("content") String content,
+    public AjaxBasicReturn createComment(@RequestParam("content") String content,
                                          @RequestParam("post_id") Long postId,
                                          @RequestParam("user_id") Long userId) {
         Comment comment = new Comment(userId, postId, content);
