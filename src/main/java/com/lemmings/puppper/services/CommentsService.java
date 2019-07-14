@@ -22,11 +22,11 @@ public class CommentsService {
         return commentsDAO.findAllByPostId(postId);
     }
 
-    public void deleteComment(Long commentId) {
-        commentsDAO.deleteById(commentId);
-    }
-
-    public void editComment(Comment comment) {
-        commentsDAO.save(comment);
+    public void deleteComment(Long commentId) throws Exception {
+        if (commentsDAO.existsById(commentId)) {
+            commentsDAO.deleteById(commentId);
+        } else {
+            throw new Exception("Комментарий не существует");
+        }
     }
 }

@@ -2,7 +2,6 @@ package com.lemmings.puppper.controllers;
 
 import com.lemmings.puppper.model.AjaxBasicReturn;
 import com.lemmings.puppper.model.Comment;
-import com.lemmings.puppper.model.User;
 import com.lemmings.puppper.services.CommentsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -11,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @Controller
+@RequestMapping("/comment")
 public class CommentsController {
 
     private CommentsService commentsService;
@@ -31,8 +31,6 @@ public class CommentsController {
             commentsService.createComment(comment);
         }
         catch (Exception e) {
-            e.printStackTrace();
-
             return new AjaxBasicReturn(false, e.getMessage());
         }
 
@@ -45,7 +43,7 @@ public class CommentsController {
         return commentsService.getComments(postId);
     }
 
-    @PostMapping("/deleteComment")
+    @DeleteMapping("/deleteComment")
     @ResponseBody
     public AjaxBasicReturn deleteComments(@RequestParam("user_id") Long userId,
                                         @RequestParam("comment_id") Long commentId) {
@@ -53,8 +51,6 @@ public class CommentsController {
             commentsService.deleteComment(commentId);
         }
         catch (Exception e) {
-            e.printStackTrace();
-
             return new AjaxBasicReturn(false, e.getMessage());
         }
 
