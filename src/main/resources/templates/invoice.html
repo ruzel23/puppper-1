@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<!--<html lang="en">-->
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Invoice</title>
+</head>
+<body>
+
+<h1> Уважаемый,  [(${user.getName()})] ваш заказ оплачен <br>
+    Номер заказа: [(${invoice.getId()})] <br>
+    Дата покупки: [(${invoice.getDate().toString()})]
+</h1>
+<table border="1">
+    <caption>Накладная</caption>
+    <tr>
+        <th>№</th>
+        <th>Наименование товара</th>
+        <th>Количество</th>
+        <th>Цена</th>
+        <th>Стоимость</th>
+    </tr>
+    <tr th:each="sale, itrStat : ${sales}">
+        <td><p th:text="${itrStat.index}"></td>
+        <td th:text="${sale.getProduct().getName()}"></td>
+        <td th:text="${sale.getCount()}"></td>
+        <td th:text="${sale.getProduct().getPrice()}"></td>
+        <td th:text="${sale.getCost()}"></td>
+    </tr>
+</table>
+<h2>
+    Покупайте только у нас, по выгодным ценам!<br>
+    Дорогущий [(${saleOut.getProduct().getName()})] по цене
+    [(${saleOut.getProduct().getPrice()})] рублей <br>
+    теперь всего лишь за
+   [(${saleOut.getSaleOutPrice()})] рублей <br>
+    Мы заботимся о вас!!!
+</h2>
+
+<footer>
+    <div th:if="${user.isBonus()} == true">
+        <div> У вас [(${user.getBonus()})] баллов </div>
+    </div>
+    <div th:unless="${user.isBonus()}">
+        <div> Участвуйте в бонусах (здесь url) </div>
+    </div>
+</footer>
+
+</body>
+</html>

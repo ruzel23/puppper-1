@@ -1,7 +1,7 @@
 package com.lemmings.puppper.services;
 
 import com.lemmings.puppper.dao.CommentsDAO;
-import com.lemmings.puppper.dao.CommentsDAOImpl;
+//import com.lemmings.puppper.dao.CommentsDAOImpl;
 import com.lemmings.puppper.model.Comment;
 import org.springframework.stereotype.Service;
 
