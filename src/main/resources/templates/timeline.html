@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.thymeleaf.org ">
+<head>
+    <meta charset="UTF-8">
+    <title>Timeline</title>
+</head>
+<body>
+<h1>some deep thoughts, real deep</h1>
+
+<table>
+    <tbody>
+        <tr th:if="${!posts.isEmpty()}" th:each="post : @{posts}">
+            <td th:text="${post.authorId}">Author ID</td>
+            <td th:text="${post.content}">Text Content</td>
+            <td th:text="${post.creationDate}">Date</td>
+        </tr>
+    </tbody>
+</table>
+</body>
+</html>
