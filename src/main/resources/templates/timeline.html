@@ -1,21 +1,40 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xsi:schemaLocation="http://www.thymeleaf.org ">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Timeline</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 </head>
 <body>
-<h1>some deep thoughts, real deep</h1>
+<div class="postForm">
+    <form th:action="@{/timeline}" th:object="${post}" method="post">
+        <div>
+            <input type="text" th:field="*{content}" placeholder="type something"/>
+        </div>
+        <div>
+            <button type="submit" name="authorId" value="555">Post</button>
+        </div>
+    </form>
+</div>
 
-<table>
-    <tbody>
-        <tr th:if="${!posts.isEmpty()}" th:each="post : @{posts}">
-            <td th:text="${post.authorId}">Author ID</td>
-            <td th:text="${post.content}">Text Content</td>
-            <td th:text="${post.creationDate}">Date</td>
+<div class="postsList" th:unless="${posts.isEmpty()}">
+    <h1>some deep thoughts, real deep</h1>
+    <table>
+        <tbody>
+        <tr th:each="post : ${posts}">
+            <td th:text="${post.getAuthorId()}">Author ID</td>
+            <td th:text="${post.getContent()}">Text Content</td>
+            <td>
+                <a th:href="@{'/timeline/' + {post.getId()}}" th:text="${post.getCreationDate()}">Date</a>
+            </td>
+            <td>
+                <form th:action="@{/timeline/{pid}(pid=${post.getId()})}" th:object="${post}" method="post">
+                    <button type="submit" >Delete</button>
+                </form>
+            </td>
         </tr>
-    </tbody>
-</table>
+        </tbody>
+    </table>
+</div>
 </body>
 </html>

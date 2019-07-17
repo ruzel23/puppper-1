@@ -20,36 +20,44 @@ public class PostController {
     }
 
     @GetMapping
-    public String showAllPosts(Model model) {
+    public String list(Model model) {
         List<Post> posts = postService.getAllPosts();
+        model.addAttribute("post", new Post());
         model.addAttribute("posts", posts);
 
         return "timeline";
     }
 
-    @GetMapping("/{id}")
-    public String showPost(@PathVariable Long id, Model model) {
-        Post post = postService.getPostById(id);
+    @GetMapping("/{pid}")
+    public String show(@PathVariable String pid, Model model) {
+        Post post = postService.getPostById(Long.parseLong(pid));
         model.addAttribute("post", post);
 
-        return id.toString();
+        return pid.toString();
     }
 
     @PostMapping
-    public String createPost(@RequestParam("authorId") Long authorId,
-                             @RequestParam("text") String text,
-                             Model model) {
-        postService.createNewPost(authorId, text);
+    public String add(@RequestParam("authorId") String authorId,
+                      @RequestParam("content") String text,
+                      Model model) {
+        postService.createNewPost(Long.parseLong(authorId), text);
 
         return "redirect:/timeline";
     }
 
-    @PutMapping("/{id}")
-    public String update(@PathVariable Long id,
-                         @RequestParam String text,
-                         Model model) {
-        postService.updatePost(id, text);
+    @PutMapping("/{pid}")
+    public String edit(@PathVariable String pid,
+                       @RequestParam String text,
+                       Model model) {
+        postService.updatePost(Long.parseLong(pid), text);
 
-        return "redirect:/" + id;
+        return "redirect:/" + pid;
+    }
+
+    @PostMapping("/{pid}")
+    public String remove(@PathVariable String pid) {
+        postService.deletePost(Long.parseLong(pid));
+
+        return "redirect:/timeline";
     }
 }
