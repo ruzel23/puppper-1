@@ -16,24 +16,28 @@ public class Comment implements Serializable {
     private Long id;
     @Column(name = "content")
     private String content;
-    @Column(name = "post_id")
-    private Long postId;
+    @JoinColumn(name = "post")
+    @ManyToOne
+    private Post post;
     @Column(name = "parent_id")
     private Long parentId;
     @Column(name = "user_id")
     private Long userId;
 
-    public Comment(Long userId, Long postId, String content) {
-        this.userId = userId;
-        this.postId = postId;
-        this.content = content;
-    }
 
     public Comment() {}
 
-    public Comment(Long userId, Long postId, Long parentId, String content) {
+    public Comment(Long userId, Post post, Long parentId, String content) {
         this.userId = userId;
-        this.postId = postId;
+        this.post = post;
+        this.parentId = parentId;
+        this.content = content;
+    }
+
+    public Comment(Long id, Long userId, Post post, Long parentId, String content) {
+        this.id = id;
+        this.userId = userId;
+        this.post = post;
         this.parentId = parentId;
         this.content = content;
     }

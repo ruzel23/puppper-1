@@ -10,7 +10,7 @@ import org.springframework.web.servlet.ModelAndView;
 public class HomeController {
 
     @GetMapping
-    public ModelAndView getIndexPage() {
-        return new ModelAndView("index");
+    public ModelAndView getCommentsPage() {
+        return new ModelAndView("comments");
     }
 }

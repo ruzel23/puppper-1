@@ -2,15 +2,17 @@ package com.lemmings.puppper.controllers;
 
 import com.lemmings.puppper.model.AjaxBasicReturn;
 import com.lemmings.puppper.model.Comment;
+import com.lemmings.puppper.model.User;
 import com.lemmings.puppper.services.CommentsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @Controller
-@RequestMapping("/comment")
+@RequestMapping("/comments")
 public class CommentsController {
 
     private CommentsService commentsService;
@@ -25,10 +27,10 @@ public class CommentsController {
     public AjaxBasicReturn createComment(@RequestParam("content") String content,
                                          @RequestParam("post_id") Long postId,
                                          @RequestParam("parent_id") Long parentId,
-                                         @RequestParam("user_id") Long userId) {
-        Comment comment = new Comment(userId, postId, parentId, content);
+                                         @ModelAttribute("user") User user) {
+        //Comment comment = new Comment(user, postId, parentId, content);
         try {
-            commentsService.createComment(comment);
+            //commentsService.createComment(comment);
         }
         catch (Exception e) {
             return new AjaxBasicReturn(false, e.getMessage());
@@ -39,13 +41,13 @@ public class CommentsController {
 
     @GetMapping("/getComments")
     @ResponseBody
-    public List<Comment> getComments(@RequestParam("post_id") Long postId) {
+    public Map<Comment, List<Comment>> getComments(@RequestParam("post_id") Long postId) {
         return commentsService.getComments(postId);
     }
 
     @DeleteMapping("/deleteComment")
     @ResponseBody
-    public AjaxBasicReturn deleteComments(@RequestParam("user_id") Long userId,
+    public AjaxBasicReturn deleteComment(@RequestParam("user_id") Long userId,
                                         @RequestParam("comment_id") Long commentId) {
         try {
             commentsService.deleteComment(commentId);
