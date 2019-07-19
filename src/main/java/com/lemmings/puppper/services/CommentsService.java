@@ -19,17 +19,26 @@ public class CommentsService {
         commentsDAO.save(comment);
     }
 
-    public Map<Comment, List<Comment>> getComments(Long postId) {
+    public List<Comment> getComments(Long postId) {
         List<Comment> comments = commentsDAO.findAllByPostId(postId ,new Sort(Sort.Direction.ASC, "id"));
-        Map<Comment, List<Comment>> result = new TreeMap<>(Comparator.comparing(Comment::getId));
-        for (Comment c : comments) {
-            if (c.getParentId() != null) {
-                result.get(c.getParentId()).add(c);
-            } else {
-                result.put(c, new ArrayList<>());
-            }
-        }
-        return result;
+        //Comparator<Comment> comparator = Comparator.comparing(Comment::getId);
+        //Set<Comment> result = new TreeSet<>(comparator);
+        //for (Comment c : comments) {
+        //    if (c.getParent() != null) {
+        //        c.getParent().getChildren().add(c);
+        //    } else {
+        //        result.add(c);
+        //    }
+        //}
+        //Map<Comment, List<Comment>> result = new TreeMap<>(Comparator.comparing(Comment::getId));
+        //for (Comment c : comments) {
+        //    if (c.getParent() != null) {
+        //        result.get(c.getParent()).add(c);
+        //    } else {
+        //        result.put(c, new ArrayList<>());
+        //    }
+        //}
+        return comments;
     }
 
     public void deleteComment(Long commentId) throws Exception {

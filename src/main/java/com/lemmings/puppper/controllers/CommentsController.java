@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 @Controller
 @RequestMapping("/comments")
@@ -22,15 +24,15 @@ public class CommentsController {
         this.commentsService = commentsService;
     }
 
-    @PostMapping("/createComment")
+    @PostMapping("/addComment")
     @ResponseBody
     public AjaxBasicReturn createComment(@RequestParam("content") String content,
                                          @RequestParam("post_id") Long postId,
                                          @RequestParam("parent_id") Long parentId,
                                          @ModelAttribute("user") User user) {
-        //Comment comment = new Comment(user, postId, parentId, content);
+        Comment comment = new Comment(user, postId, parentId, content);
         try {
-            //commentsService.createComment(comment);
+            commentsService.createComment(comment);
         }
         catch (Exception e) {
             return new AjaxBasicReturn(false, e.getMessage());
@@ -41,7 +43,7 @@ public class CommentsController {
 
     @GetMapping("/getComments")
     @ResponseBody
-    public Map<Comment, List<Comment>> getComments(@RequestParam("post_id") Long postId) {
+    public List<Comment> getComments(@RequestParam("post_id") Long postId) {
         return commentsService.getComments(postId);
     }
 

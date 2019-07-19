@@ -12,6 +12,9 @@ import java.util.List;
 
 @Repository
 public interface CommentsDAO extends PagingAndSortingRepository<Comment, Long> {
+    @Query("select s from Comment s where s.postId = ?1 and s.parent is null")
     List<Comment> findAllByPostId(Long postId, Sort id);
+
+    //List<Comment> findAllByPostIdWhereParentIsNull(Long postId, Sort id);
     //List<Comment> findAllByPostId(Long postId);
 }
