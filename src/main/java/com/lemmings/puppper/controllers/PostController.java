@@ -6,6 +6,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -29,20 +30,23 @@ public class PostController {
     }
 
     @GetMapping("/{pid}")
-    public String show(@PathVariable String pid, Model model) {
+    public String show(@RequestParam(name = "pid", required = true) String pid, Model model) {
         Post post = postService.getPostById(Long.parseLong(pid));
         model.addAttribute("post", post);
 
-        return pid.toString();
+        return pid;
     }
 
     @PostMapping
     public String add(@RequestParam("authorId") String authorId,
-                      @RequestParam("content") String text,
+                      Post post,
                       Model model) {
-        postService.createNewPost(Long.parseLong(authorId), text);
+        post.setAuthorId(Long.parseLong(authorId));
+        post.setCreationDate(LocalDateTime.now().toString());
+        postService.createNewPost(post);
+        model.addAttribute("posts", postService.getAllPosts());
 
-        return "redirect:/timeline";
+        return "timeline";
     }
 
     @PutMapping("/{pid}")

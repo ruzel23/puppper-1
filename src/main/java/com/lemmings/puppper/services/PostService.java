@@ -33,13 +33,15 @@ public class PostService {
         return findPost(id).orElse(new Post());
     }
 
-    public Post createNewPost(Long userId, String content) {
-        return postRepository.save(
-                Post.builder()
-                        .authorId(userId)
-                        .content(content)
-                        .creationDate(LocalDateTime.now().toString())
-                        .build());
+    public Post createNewPost(Post post) {
+        return postRepository.save(post);
+
+//
+//                Post.builder()
+//                        .authorId(userId)
+//                        .content(content)
+//                        .creationDate(LocalDateTime.now().toString())
+//                        .build());
     }
 
     public Post updatePost(Long id, String content) {

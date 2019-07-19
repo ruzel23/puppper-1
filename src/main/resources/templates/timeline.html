@@ -17,7 +17,7 @@
     </form>
 </div>
 
-<div class="postsList" th:unless="${posts.isEmpty()}">
+<div class="postsList" th:unless="${posts} == null">
     <h1>some deep thoughts, real deep</h1>
     <table>
         <tbody>
@@ -25,10 +25,10 @@
             <td th:text="${post.getAuthorId()}">Author ID</td>
             <td th:text="${post.getContent()}">Text Content</td>
             <td>
-                <a th:href="@{'/timeline/' + {post.getId()}}" th:text="${post.getCreationDate()}">Date</a>
+                <a th:href="@{/timeline/{pid}(pid=${post.getId()})}" th:text="${post.getCreationDate()}">Date</a>
             </td>
             <td>
-                <form th:action="@{/timeline/{pid}(pid=${post.getId()})}" th:object="${post}" method="post">
+                <form th:action="@{/timeline/{pid}(pid=${post.getId()})}" method="post">
                     <button type="submit" >Delete</button>
                 </form>
             </td>
