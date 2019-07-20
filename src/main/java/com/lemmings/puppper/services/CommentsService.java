@@ -19,26 +19,22 @@ public class CommentsService {
         commentsDAO.save(comment);
     }
 
-    public List<Comment> getComments(Long postId) {
+    public Map<Long, Set<Comment>> getComments(Long postId) {
         List<Comment> comments = commentsDAO.findAllByPostId(postId ,new Sort(Sort.Direction.ASC, "id"));
-        //Comparator<Comment> comparator = Comparator.comparing(Comment::getId);
-        //Set<Comment> result = new TreeSet<>(comparator);
-        //for (Comment c : comments) {
-        //    if (c.getParent() != null) {
-        //        c.getParent().getChildren().add(c);
-        //    } else {
-        //        result.add(c);
-        //    }
-        //}
-        //Map<Comment, List<Comment>> result = new TreeMap<>(Comparator.comparing(Comment::getId));
-        //for (Comment c : comments) {
-        //    if (c.getParent() != null) {
-        //        result.get(c.getParent()).add(c);
-        //    } else {
-        //        result.put(c, new ArrayList<>());
-        //    }
-        //}
-        return comments;
+        Comparator<Comment> comparator = Comparator.comparing(Comment::getId);
+        Map<Long, Set<Comment>> result = new HashMap<>();
+        result.put(0L, new TreeSet<>(comparator));
+        for (Comment c : comments) {
+            if (c.getParent() != null) {
+                if (!result.containsKey(c.getParent())) {
+                    result.put(c.getParent(), new TreeSet<>(comparator));
+                }
+                result.get(c.getParent()).add(c);
+            } else {
+                result.get(0L).add(c);
+            }
+        }
+        return result;
     }
 
     public void deleteComment(Long commentId) throws Exception {

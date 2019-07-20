@@ -25,8 +25,10 @@ public class Comment implements Serializable {
     private Long postId;
     @Column(name = "parent_id")
     private Long parent;
-    @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY)
-    private List<Comment> children = new LinkedList<>();
+    //@OneToMany(mappedBy = "parent", fetch = FetchType.LAZY)
+    //@JsonInclude()
+    //@Transient
+    //private List<Comment> children = new LinkedList<>();
     @Column(name = "user_id")
     private Long userId;
     @Column(name = "user_name")

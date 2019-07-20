@@ -10,6 +10,11 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
     <meta charset="UTF-8">
     <title>Comments</title>
+    <style>
+        textarea {
+            resize: none; /* Запрещаем изменять размер */
+        }
+    </style>
 </head>
 <body>
 <h1>Комментарии</h1>
@@ -30,9 +35,12 @@
 <script>
     var postId = 1;
     var $container = $("#getComments");
+    var commentsGraph;
+    var replyParent = 0;
     $(function() {
         ajaxWrapper("/comments/getComments", "GET", {post_id : postId}, function(data) {
-            showComments(data);
+            commentsGraph = data;
+            showComments(data[0], "");
         });
 
         $("#comment_form").on("submit", function (event) {
@@ -44,26 +52,47 @@
         });
 
         $(document).on("click", ".reply", function () {
+            var parentId = $(this).attr("id");
+            var commentId = $(this).attr("name");
+            if (parentId == 0) {
+                parentId = commentId;
+            }
+            $("#reply_"+parentId+"").val(commentId);
+        });
+
+        $(document).on("click", ".submit2", function () {
             var comment_id = $(this).attr("id");
-            $("#comment_id").val(comment_id);
+            //alert(comment_id);
+            $("#reply_"+comment_id+"").val(comment_id);
             $("#comment_name").focus();
         });
     });
 
-    function showComments(data) {
+    function showComments(data, parentName) {
         for (var i in data) {
             var marginLeft = 0;
+            var headingText = data[i].userName;
             if (data[i].parent != null) {
                 marginLeft = 48;
+                headingText += " ответил " + parentName;
             }
             $container.append($("<div class = \"panel panel-default\"style=\"margin-left: "+marginLeft+"px\"></div>").
-            append("<div class = \"panel-heading\">" + data[i].userName + "</div>").
+            append("<div class = \"panel-heading\">" + headingText + "</div>").
             append("<div class = \"panel-body\">" + data[i].content + "</div>").
             append($("<div class = \"panel-footer\" align=\"right\"></div>").
-            append("<button type=\"button\" class = \"btn btn-default reply\" id = \""+ data[i].id +"\">Ответить</button>")));
-            //$container.append("</div>");
-            if (data[i].children.length != 0) {
-                showComments(data[i].children);
+            append("<button type=\"button\" class = \"btn btn-default reply\" name = \""+ data[i].id +"\" id = \""+ replyParent +"\">Ответить</button>")));
+            $container.append("</div>");
+            if (commentsGraph[data[i].id] != null) {
+                if (data[i].parent == null) {
+                    replyParent = data[i].id;
+                }
+                showComments(commentsGraph[data[i].id], data[i].userName);
+                if (data[i].parent == null) {
+                    $container.append($("<form class=\"form-inline\"></form>").
+                    append("<input type=\"hidden\" name=\"reply_"+data[i].id+"\" id=\"reply_"+data[i].id+"\" value=\""+data[i].id+"\"/>").
+                    append("<div class=\"form-group\"><textarea class=\"form-control\" id = \""+data[i].id+"\"rows=\"1\" style=\"margin-left: 48px\"></textarea></div>").
+                    append("<div class=\"form-group\"><button type=\"button\" class=\"btn btn-default submit2\" id = \""+data[i].id+"\">Отправить</button></div>"));
+                }
             }
         }
     }

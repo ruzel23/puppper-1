@@ -43,7 +43,7 @@ public class CommentsController {
 
     @GetMapping("/getComments")
     @ResponseBody
-    public List<Comment> getComments(@RequestParam("post_id") Long postId) {
+    public Map<Long, Set<Comment>> getComments(@RequestParam("post_id") Long postId) {
         return commentsService.getComments(postId);
     }
 
