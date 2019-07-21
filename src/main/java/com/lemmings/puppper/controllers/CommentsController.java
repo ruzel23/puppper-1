@@ -29,16 +29,18 @@ public class CommentsController {
     public AjaxBasicReturn createComment(@RequestParam("content") String content,
                                          @RequestParam("post_id") Long postId,
                                          @RequestParam("parent_id") Long parentId,
-                                         @ModelAttribute("user") User user) {
-        Comment comment = new Comment(user, postId, parentId, content);
+                                         @RequestParam("user_id") Long userId,
+                                         @RequestParam("user_name") String userName) {
+        Comment comment = new Comment(userId, userName, postId, parentId, content);
+        Long freshCommentId;
         try {
-            commentsService.createComment(comment);
+            freshCommentId = commentsService.createComment(comment);
         }
         catch (Exception e) {
             return new AjaxBasicReturn(false, e.getMessage());
         }
 
-        return new AjaxBasicReturn(true, "");
+        return new AjaxBasicReturn(true, freshCommentId.toString());
     }
 
     @PostMapping("/editComment")

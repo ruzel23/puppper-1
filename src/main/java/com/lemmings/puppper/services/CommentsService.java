@@ -15,8 +15,9 @@ public class CommentsService {
         this.commentsDAO = commentDAO;
     }
 
-    public void createComment(Comment comment) {
-        commentsDAO.save(comment);
+    public Long createComment(Comment comment) {
+        Comment freshComment = commentsDAO.save(comment);
+        return freshComment.getId();
     }
 
     public Map<Long, Set<Comment>> getComments(Long postId) {

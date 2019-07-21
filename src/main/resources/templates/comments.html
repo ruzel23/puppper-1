@@ -33,13 +33,16 @@
 <div id="getComments">
 </div>
 <script>
-    var postId = 1;
+    var userId = 1; //ToDo реализовать получение id из сессии
+    var userName = "MrSalatik";
+    var postId = 1; //ToDo совместить с модулем постов
     var $container = $("#getComments");
     var commentsGraph;
     var replyParent = 0;
     var editing = false;
     var editContent = "";
     var editFooter = "";
+
     $(function() {
         ajaxWrapper("/comments/getComments", "GET", {post_id : postId}, function(data) {
             commentsGraph = data;
@@ -47,17 +50,23 @@
         });
 
         $("#comment_form").on("submit", function (event) {
-            //ajaxWrapper("/comments/addComment", "POST", {post_id : postId}, function(data) {
-            //});
             event.preventDefault();
-           alert("Комментарий отправлен");
+            var content = $("#comment_content").val();
+            ajaxWrapper("/comments/addComment", "POST", {user_id : userId,
+                    user_name : userName,
+                    post_id : postId,
+                    content : content,
+                    parent_id : null},
+                function(data) {
+                    alert("Комментарий отправлен");
+                });
         });
 
         $(document).on("click", ".reply", function () {
             var parentId = $(this).attr("id");
             var commentId = $(this).attr("name");
             var userName = $("#user_"+commentId).attr("name");
-            $("#reply_text_area"+parentId).val(userName+", ");
+            $("#reply_text_area_"+parentId).val(userName+", ");
             if (parentId == 0) {
                 parentId = commentId;
             }
@@ -105,9 +114,18 @@
         });
 
         $(document).on("click", ".submit2", function () {
-            var comment_id = $(this).attr("id");
-            $("#reply_"+comment_id+"").val(comment_id);
-            $("#comment_name").focus();
+            event.preventDefault();
+            var commentId = $(this).attr("id");
+            var content = $("#reply_text_area_"+commentId).val();
+            var parentId = $("#reply_"+commentId+"").val();
+            ajaxWrapper("/comments/addComment", "POST", {user_id : userId,
+                    user_name : userName,
+                    post_id : postId,
+                    content : content,
+                    parent_id : parentId},
+                function(data) {
+                    alert("Ответ отправлен");
+                });
         });
     });
 
@@ -134,7 +152,7 @@
                 if (data[i].parent == null) {
                     var replyForm = '<form class="form-inline">' +
                         '<input type=\"hidden\" name=\"reply_' + data[i].id + '\" id=\"reply_' + data[i].id + '\" value=\"' + data[i].id + '\"/>' +
-                        '<div class=\"form-group\"><textarea class=\"form-control\" id = \"reply_text_area' + data[i].id + '\"rows=\"1\" style=\"margin-left: 48px\"></textarea></div>' +
+                        '<div class=\"form-group\"><textarea class=\"form-control\" id = \"reply_text_area_' + data[i].id + '\"rows=\"1\" style=\"margin-left: 48px\"></textarea></div>' +
                         '<div class=\"form-group\"><button type=\"button\" class=\"btn btn-default submit2\" id = \"' + data[i].id + '\">Отправить</button></div>' +
                         '</form><br/>';
                     $container.append(replyForm);

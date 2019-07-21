@@ -1,6 +1,5 @@
 package com.lemmings.puppper.dao;
 
-import com.lemmings.puppper.model.Comment;
 import com.lemmings.puppper.model.Post;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
