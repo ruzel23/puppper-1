@@ -1,10 +1,16 @@
 package com.lemmings.puppper.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.*;
 
+@Data
 @Entity
 @Table(name = "comments")
 public class Comment implements Serializable {
@@ -18,55 +24,26 @@ public class Comment implements Serializable {
     @Column(name = "post_id")
     private Long postId;
     @Column(name = "parent_id")
-    private Long parentId;
+    private Long parent;
     @Column(name = "user_id")
     private Long userId;
+    @Column(name = "user_name")
+    private String userName;
 
-    public Comment(Long userId, Long postId, String content) {
-        this.userId = userId;
+    public Comment(User user, Long postId, String content) {
+        this.userId = user.getId();
+        this.userName = user.getName();
         this.postId = postId;
         this.content = content;
     }
 
     public Comment() {}
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
-
-    public Long getPostId() {
-        return postId;
-    }
-
-    public void setPostId(Long postId) {
-        this.postId = postId;
-    }
-
-    public Long getParentId() {
-        return parentId;
-    }
-
-    public void setParentId(Long parentId) {
-        this.parentId = parentId;
-    }
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
+    public Comment(Long userId, String userName, Long postId, Long parent, String content) {
         this.userId = userId;
+        this.userName = userName;
+        this.postId = postId;
+        this.parent = parent;
+        this.content = content;
     }
 }
