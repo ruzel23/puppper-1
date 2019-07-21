@@ -41,6 +41,20 @@ public class CommentsController {
         return new AjaxBasicReturn(true, "");
     }
 
+    @PostMapping("/editComment")
+    @ResponseBody
+    public AjaxBasicReturn editComment(@RequestParam("id") Long id,
+                                         @RequestParam("content") String content) {
+        try {
+            commentsService.editComment(id, content);
+        }
+        catch (Exception e) {
+            return new AjaxBasicReturn(false, e.getMessage());
+        }
+
+        return new AjaxBasicReturn(true, content);
+    }
+
     @GetMapping("/getComments")
     @ResponseBody
     public Map<Long, Set<Comment>> getComments(@RequestParam("post_id") Long postId) {

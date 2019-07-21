@@ -44,4 +44,9 @@ public class CommentsService {
             throw new Exception("Комментарий не существует");
         }
     }
+
+    public void editComment(Long id, String content) {
+        //ToDo добавить проверку на пользователя и на существование коммента.
+        commentsDAO.editComment(id, content);
+    }
 }

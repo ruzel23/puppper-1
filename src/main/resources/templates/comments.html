@@ -37,6 +37,9 @@
     var $container = $("#getComments");
     var commentsGraph;
     var replyParent = 0;
+    var editing = false;
+    var editContent = "";
+    var editFooter = "";
     $(function() {
         ajaxWrapper("/comments/getComments", "GET", {post_id : postId}, function(data) {
             commentsGraph = data;
@@ -45,7 +48,6 @@
 
         $("#comment_form").on("submit", function (event) {
             //ajaxWrapper("/comments/addComment", "POST", {post_id : postId}, function(data) {
-            //    showComments(data);
             //});
             event.preventDefault();
            alert("Комментарий отправлен");
@@ -54,15 +56,56 @@
         $(document).on("click", ".reply", function () {
             var parentId = $(this).attr("id");
             var commentId = $(this).attr("name");
+            var userName = $("#user_"+commentId).attr("name");
+            $("#reply_text_area"+parentId).val(userName+", ");
             if (parentId == 0) {
                 parentId = commentId;
             }
-            $("#reply_"+parentId+"").val(commentId);
+            $("#reply_"+parentId).val(commentId);
+        });
+
+        $(document).on("click", ".delete", function () {
+            var commentId = $(this).attr("id");
+            alert(commentId);
+        });
+
+        $(document).on("click", ".edit", function () {
+            var commentId = $(this).attr("id");
+            if (!editing) {
+                editing = true;
+                editContent = $("#comment_content_"+commentId+"").clone();
+                editFooter = $("#comment_footer_"+commentId+"").clone();
+                $("#comment_content_"+commentId+"").html("<textarea class=\"form-control\" id = \"editText\" rows=\"1\"></textarea>");
+                var footEdit = '<button type=\"button\" class = \"btn btn-default saveEdit\" id = \"'+ commentId +'\">Сохранить</button>' +
+                    '<button type=\"button\" class = \"btn btn-default cancel\" id = \"'+ commentId +'\">Отменить</button>';
+                $("#comment_footer_"+commentId+"").html(footEdit);
+            }
+        });
+
+        $(document).on("click", ".saveEdit", function () {
+            var commentId = $(this).attr("id");
+            var newContent = $("#editText").val();
+            if (editContent.text() == newContent || newContent == "") {
+                $("#comment_content_"+commentId+"").replaceWith(editContent);
+                $("#comment_footer_"+commentId+"").replaceWith(editFooter);
+            } else {
+                ajaxWrapper("/comments/editComment", "POST", {id : commentId, content : newContent}, function(data) {
+                    $("#comment_content_"+commentId+"").html(data.message);
+                    $("#comment_footer_"+commentId+"").replaceWith(editFooter);
+                });
+            }
+            editing = false;
+        });
+
+        $(document).on("click", ".cancel", function () {
+            var commentId = $(this).attr("id");
+            $("#comment_content_"+commentId+"").replaceWith(editContent);
+            $("#comment_footer_"+commentId+"").replaceWith(editFooter);
+            editing = false;
         });
 
         $(document).on("click", ".submit2", function () {
             var comment_id = $(this).attr("id");
-            //alert(comment_id);
             $("#reply_"+comment_id+"").val(comment_id);
             $("#comment_name").focus();
         });
@@ -76,22 +119,25 @@
                 marginLeft = 48;
                 headingText += " ответил " + parentName;
             }
-            $container.append($("<div class = \"panel panel-default\"style=\"margin-left: "+marginLeft+"px\"></div>").
-            append("<div class = \"panel-heading\">" + headingText + "</div>").
-            append("<div class = \"panel-body\">" + data[i].content + "</div>").
-            append($("<div class = \"panel-footer\" align=\"right\"></div>").
-            append("<button type=\"button\" class = \"btn btn-default reply\" name = \""+ data[i].id +"\" id = \""+ replyParent +"\">Ответить</button>")));
-            $container.append("</div>");
+            var mainBlock = '<div class = \"panel panel-default\" style=\"margin-left: ' + marginLeft + 'px\">' +
+                '<div class = \"panel-heading\" id = \"user_'+data[i].id+'\" name = \"'+data[i].userName+'\">' + headingText + '<button type=\"button\" class=\"btn btn-link edit\" id = \"'+ data[i].id +'\">Редактировать</button><button type=\"button\" class=\"btn btn-link delete\" id = \"'+ data[i].id +'\">Удалить</button></div>' +
+                '<div class = \"panel-body\" id = \"comment_content_'+data[i].id+'\">' + data[i].content + '</div>' +
+                '<div class = \"panel-footer\" align=\"right\" id = \"comment_footer_'+data[i].id+'\">' +
+                '<button type=\"button\" class = \"btn btn-default reply\" name = \"'+ data[i].id +'\" id = \"'+ replyParent +'\">Ответить</button>' +
+                '</div></div>';
+            $container.append(mainBlock);
             if (commentsGraph[data[i].id] != null) {
                 if (data[i].parent == null) {
                     replyParent = data[i].id;
                 }
                 showComments(commentsGraph[data[i].id], data[i].userName);
                 if (data[i].parent == null) {
-                    $container.append($("<form class=\"form-inline\"></form>").
-                    append("<input type=\"hidden\" name=\"reply_"+data[i].id+"\" id=\"reply_"+data[i].id+"\" value=\""+data[i].id+"\"/>").
-                    append("<div class=\"form-group\"><textarea class=\"form-control\" id = \""+data[i].id+"\"rows=\"1\" style=\"margin-left: 48px\"></textarea></div>").
-                    append("<div class=\"form-group\"><button type=\"button\" class=\"btn btn-default submit2\" id = \""+data[i].id+"\">Отправить</button></div>"));
+                    var replyForm = '<form class="form-inline">' +
+                        '<input type=\"hidden\" name=\"reply_' + data[i].id + '\" id=\"reply_' + data[i].id + '\" value=\"' + data[i].id + '\"/>' +
+                        '<div class=\"form-group\"><textarea class=\"form-control\" id = \"reply_text_area' + data[i].id + '\"rows=\"1\" style=\"margin-left: 48px\"></textarea></div>' +
+                        '<div class=\"form-group\"><button type=\"button\" class=\"btn btn-default submit2\" id = \"' + data[i].id + '\">Отправить</button></div>' +
+                        '</form><br/>';
+                    $container.append(replyForm);
                 }
             }
         }
