@@ -10,6 +10,7 @@ import lombok.Setter;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import java.io.Serializable;
@@ -25,16 +26,14 @@ import java.io.Serializable;
 public class Post implements Serializable {
 
     @Id
-    @GeneratedValue
-    @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-//    @ManyToOne(targetEntity = User.class, fetch = FetchType.EAGER)
-    @Column(name = "user_id")
-    private Long authorId;
-    @Column(name = "content")
+//    @Column(name = "author_id")
+//    private Long authorId;
+    @Column(name = "content", nullable = false)
     private String content;
-    @Column(name = "creation_date")
+    @Column(name = "creation_date", nullable = false)
     private String creationDate;
 
 }

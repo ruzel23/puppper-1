@@ -1,17 +1,20 @@
 package com.lemmings.puppper.controllers;
 
 import com.lemmings.puppper.model.Post;
+import com.lemmings.puppper.model.User;
 import com.lemmings.puppper.services.PostService;
+import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import java.time.LocalDateTime;
 import java.util.List;
 
 
 @Controller
-@RequestMapping("/timeline")
+@RequestMapping("/posts")
 public class PostController {
 
     private final PostService postService;
@@ -22,46 +25,41 @@ public class PostController {
 
     @GetMapping
     public String list(Model model) {
-        List<Post> posts = postService.getAllPosts();
         model.addAttribute("post", new Post());
-        model.addAttribute("posts", posts);
+        model.addAttribute("posts", postService.getAllPosts());
 
-        return "timeline";
+        return "posts";
     }
 
-    @GetMapping("/{pid}")
-    public String show(@RequestParam(name = "pid", required = true) String pid, Model model) {
-        Post post = postService.getPostById(Long.parseLong(pid));
+    @GetMapping("/edit")
+    public String edit(@RequestParam("pid") Long pid, Model model) {
+        Post post = postService.getPostById(pid);
         model.addAttribute("post", post);
 
-        return pid;
+        return "fragments/postForm :: postForm";
     }
 
     @PostMapping
-    public String add(@RequestParam("authorId") String authorId,
-                      Post post,
-                      Model model) {
-        post.setAuthorId(Long.parseLong(authorId));
-        post.setCreationDate(LocalDateTime.now().toString());
-        postService.createNewPost(post);
+    public String save(Post post, Model model) {
+        postService.savePost(post);
+
+        return "redirect:/posts";
+    }
+
+    @PutMapping
+    public String update(Post post, Model model) {
+        postService.updatePost(post);
         model.addAttribute("posts", postService.getAllPosts());
 
-        return "timeline";
+        return "posts";
     }
 
-    @PutMapping("/{pid}")
-    public String edit(@PathVariable String pid,
-                       @RequestParam String text,
-                       Model model) {
-        postService.updatePost(Long.parseLong(pid), text);
+    @DeleteMapping
+    public String remove(@RequestParam Long pid, Model model) {
+        postService.deletePost(pid);
+        model.addAttribute("post", new Post());
+        model.addAttribute("posts", postService.getAllPosts());
 
-        return "redirect:/" + pid;
-    }
-
-    @PostMapping("/{pid}")
-    public String remove(@PathVariable String pid) {
-        postService.deletePost(Long.parseLong(pid));
-
-        return "redirect:/timeline";
+        return "posts";
     }
 }

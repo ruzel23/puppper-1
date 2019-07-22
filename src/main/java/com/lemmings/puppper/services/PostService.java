@@ -22,47 +22,31 @@ public class PostService {
         return postRepository.findAll();
     }
 
-    public List<Post> getAllPostsByUserId(Long userId) {
-        return postRepository.findAll(Example.of(
-                Post.builder()
-                        .authorId(userId)
-                        .build()));
-    }
+//    public List<Post> getUserPosts(Long authorId) {
+//        return postRepository.findAllByAuthorId(authorId);
+//    }
 
     public Post getPostById(Long id) {
-        return findPost(id).orElse(new Post());
+        return postRepository
+                .findById(id)
+                .orElseThrow(RuntimeException::new);
     }
 
-    public Post createNewPost(Post post) {
-        return postRepository.save(post);
-
-//
-//                Post.builder()
-//                        .authorId(userId)
-//                        .content(content)
-//                        .creationDate(LocalDateTime.now().toString())
-//                        .build());
+    public void savePost(Post post) {
+        post.setCreationDate(LocalDateTime.now().toString());
+        postRepository.save(post);
     }
 
-    public Post updatePost(Long id, String content) {
-        Optional<Post> toUpdate = findPost(id);
+    public Post updatePost(Post post) {
+        Post toUpdate = postRepository.getOne(post.getId());
+        toUpdate.setContent(post.getContent());
 
-        if (toUpdate.isPresent()) {
-            Post updated = toUpdate.get();
-            updated.setContent(content);
-
-            return postRepository.save(updated);
-        }
-
-        return new Post();
+        return postRepository.saveAndFlush(toUpdate);
     }
 
     public void deletePost(Long id) {
-        findPost(id).ifPresent(postRepository::delete);
+        postRepository.deleteById(id);
     }
 
-    private Optional<Post> findPost(Long id) {
-        return postRepository.findById(id);
-    }
 
 }

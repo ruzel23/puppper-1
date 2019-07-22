@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>post</title>
+</head>
+<body>
+<div th:fragment="postForm">
+    <form th:action="@{/posts}" th:object="${post}" th:method="${post.id} == null ? POST : PUT">
+        <div>
+            <input type="text" th:field="*{content}" placeholder="type something"/>
+            <input type="hidden" th:field="*{id}"/>
+            <input type="hidden" th:field="*{creationDate}"/>
+            <button type="submit">Post</button>
+        </div>
+    </form>
+</div>
+</body>
+</html>
