@@ -6,14 +6,15 @@ import com.lemmings.puppper.model.User;
 import com.lemmings.puppper.services.CommentsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 @Controller
+@RequestMapping("/comments")
 public class CommentsController {
 
     private CommentsService commentsService;
@@ -23,18 +24,53 @@ public class CommentsController {
         this.commentsService = commentsService;
     }
 
-    @PostMapping("/createComment")
+    @PostMapping("/addComment")
     @ResponseBody
     public AjaxBasicReturn createComment(@RequestParam("content") String content,
                                          @RequestParam("post_id") Long postId,
-                                         @RequestParam("user_id") Long userId) {
-        Comment comment = new Comment(userId, postId, content);
+                                         @RequestParam("parent_id") Long parentId,
+                                         @RequestParam("user_id") Long userId,
+                                         @RequestParam("user_name") String userName) {
+        Comment comment = new Comment(userId, userName, postId, parentId, content);
+        Long freshCommentId;
         try {
-            commentsService.createComment(comment);
+            freshCommentId = commentsService.createComment(comment);
         }
         catch (Exception e) {
-            e.printStackTrace();
+            return new AjaxBasicReturn(false, e.getMessage());
+        }
 
+        return new AjaxBasicReturn(true, freshCommentId.toString());
+    }
+
+    @PostMapping("/editComment")
+    @ResponseBody
+    public AjaxBasicReturn editComment(@RequestParam("id") Long id,
+                                         @RequestParam("content") String content) {
+        try {
+            commentsService.editComment(id, content);
+        }
+        catch (Exception e) {
+            return new AjaxBasicReturn(false, e.getMessage());
+        }
+
+        return new AjaxBasicReturn(true, content);
+    }
+
+    @GetMapping("/getComments")
+    @ResponseBody
+    public Map<Long, Set<Comment>> getComments(@RequestParam("post_id") Long postId) {
+        return commentsService.getComments(postId);
+    }
+
+    @DeleteMapping("/deleteComment")
+    @ResponseBody
+    public AjaxBasicReturn deleteComment(@RequestParam("user_id") Long userId,
+                                        @RequestParam("comment_id") Long commentId) {
+        try {
+            commentsService.deleteComment(commentId);
+        }
+        catch (Exception e) {
             return new AjaxBasicReturn(false, e.getMessage());
         }
 
