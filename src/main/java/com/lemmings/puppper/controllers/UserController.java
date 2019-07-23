@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 
@@ -118,6 +119,17 @@ public class UserController {
 
     }
 
+
+    @GetMapping("/test")
+    public String test(HttpServletRequest request, Model model) {
+        Cookie[] cookie = request.getCookies();
+
+        model.addAttribute("token", cookie[0].getValue());
+        model.addAttribute("name", cookie[1].getValue());
+        model.addAttribute("id", cookie[2].getValue());
+
+        return "test";
+    }
 
 
 }
