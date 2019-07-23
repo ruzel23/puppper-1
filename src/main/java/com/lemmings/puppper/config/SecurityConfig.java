@@ -2,6 +2,7 @@ package com.lemmings.puppper.config;
 
 import com.lemmings.puppper.security.jwt.JwtConfigurer;
 import com.lemmings.puppper.security.jwt.JwtTokenProvider;
+import com.lemmings.puppper.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,13 +15,15 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final JwtTokenProvider jwtTokenProvider;
+    private final UserService userService;
 
     private static final String ADMIN_ENDPOINT = "url here";
     private static final String LOGIN_ENDPOINT = "url here";
 
     @Autowired
-    public SecurityConfig(JwtTokenProvider jwtTokenProvider) {
+    public SecurityConfig(JwtTokenProvider jwtTokenProvider, UserService userService) {
         this.jwtTokenProvider = jwtTokenProvider;
+        this.userService = userService;
     }
 
     @Bean
@@ -43,6 +46,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
           //      .antMatchers(ADMIN_ENDPOINT).hasRole("ADMIN")
            //     .anyRequest().authenticated()
                 .and()
-                .apply(new JwtConfigurer(jwtTokenProvider));
+                .apply(new JwtConfigurer(jwtTokenProvider, userService));
     }
 }

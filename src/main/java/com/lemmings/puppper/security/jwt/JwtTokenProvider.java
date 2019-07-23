@@ -81,6 +81,7 @@ public class JwtTokenProvider {
             return null;
         }
         return cookies[0].getValue();
+
     }
 
     public boolean validateToken(String token) {

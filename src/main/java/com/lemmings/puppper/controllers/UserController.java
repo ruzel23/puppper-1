@@ -63,14 +63,17 @@ public class UserController {
         Cookie accessTokenCookie = new Cookie("access_token", token);
         Cookie userNameCookie = new Cookie("user_name", user.getName());
         Cookie userIdCookie = new Cookie("user_id", user.getId().toString());
-        response.addCookie(accessTokenCookie);
-        response.addCookie(userNameCookie);
-        response.addCookie(userIdCookie);
+
 
         accessTokenCookie.setMaxAge(60 * 60);
         userService.register(user);
         model.addAttribute("token", token);
         model.addAttribute("user", user);
+
+        response.addCookie(accessTokenCookie);
+        response.addCookie(userNameCookie);
+        response.addCookie(userIdCookie);
+
         return new ModelAndView("welcome");
     }
 
@@ -86,32 +89,35 @@ public class UserController {
                                        HttpServletResponse response,
                                        BindingResult bindingResult,
                                        Model model) {
-        // try {
-        user.setRole(userService.findRoleByName("user"));
-        String userEmail = user.getEmail();
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userEmail, user.getPassword()));
-        User userFind = userService.findByEmail(userEmail);
+        try {
+            user.setRole(userService.findRoleByName("user"));
+            String userEmail = user.getEmail();
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userEmail, user.getPassword()));
+            User userFind = userService.findByEmail(userEmail);
 
-        if (userFind == null) {
-            throw new UsernameNotFoundException("User with email: " + userEmail + " not found");
+            if (userFind == null) {
+                throw new UsernameNotFoundException("User with email: " + userEmail + " not found");
+            }
+
+            String token = jwtTokenProvider.createToken(userEmail);
+            Cookie accessTokenCookie = new Cookie("access_token", token);
+            Cookie userNameCookie = new Cookie("user_name", userFind.getName());
+            Cookie userIdCookie = new Cookie("user_id", userFind.getId().toString());
+            accessTokenCookie.setMaxAge(60 * 60);
+            model.addAttribute("token", token);
+            model.addAttribute("user", user);
+
+            response.addCookie(accessTokenCookie);
+            response.addCookie(userNameCookie);
+            response.addCookie(userIdCookie);
+
+            return new ModelAndView("welcome");
+        } catch (AuthenticationException e) {
+            throw new BadCredentialsException("Invalid email or password");
         }
 
-        String token = jwtTokenProvider.createToken(userEmail);
-        Cookie accessTokenCookie = new Cookie("access_token", token);
-        Cookie userNameCookie = new Cookie("user_name", userFind.getName());
-        Cookie userIdCookie = new Cookie("user_id", userFind.getId().toString());
-        response.addCookie(accessTokenCookie);
-        response.addCookie(userNameCookie);
-        response.addCookie(userIdCookie);
-        accessTokenCookie.setMaxAge(60 * 60);
-        model.addAttribute("token", token);
-        model.addAttribute("user", user);
-        return new ModelAndView("welcome");
-        /*} catch (AuthenticationException e) {
-            throw new BadCredentialsException("Invalid email or password");
-        }*/
-
     }
+
 
 
 }
