@@ -37,8 +37,6 @@ public class Comment implements Serializable {
     @NotBlank
     @Column(name = "user_name")
     private String userName;
-    @Column(name = "date")
-    private LocalDate txDate;
     @DecimalMax("1")
     @DecimalMin("0")
     @Column(name = "deleted")

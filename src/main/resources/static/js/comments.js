@@ -1,7 +1,7 @@
 var userId = 1; //ToDo реализовать получение id из сессии
 var userName = "MrSalatik";
 var postId = 1; //ToDo совместить с модулем постов
-var $rootContainer = $("#getComments");
+var rootContainer = document.getElementById("getComments");
 var commentsGraph;
 var replyParent = 0;
 var editContent = "";
@@ -16,7 +16,7 @@ $(function() {
             isShowComment = true;
             ajaxWrapper("/comments/getComments", "GET", {post_id : postId}, function(data) {
                 commentsGraph = data;
-                showComments(data[0], "", $rootContainer);
+                showComments(data[0], "", rootContainer);
                 $('.auto-size').each(function() {
                     autoSize(this);
                 }).on('input', function() {
@@ -44,7 +44,7 @@ $(function() {
                         '<div class = \"panel-footer\" align=\"right\" id = \"comment_footer_'+ commentId +'\">' +
                         '<button type=\"button\" class = \"btn btn-default reply\" name = \"'+ commentId +'\" id = \"'+ commentId +'\">Ответить</button>' +
                         '</div></div>';
-                    $rootContainer.append(mainBlock);
+                    rootContainer.innerHTML += mainBlock;
                 } else {
                     alert(data.message);
                 }
@@ -137,7 +137,7 @@ $(function() {
     });
 });
 
-function displayComment(comment, parentName, $container) {
+function displayComment(comment, parentName, container) {
     var marginLeft = 0;
     var headingText = comment.userName;
     if (comment.parent != 0) {
@@ -158,7 +158,7 @@ function displayComment(comment, parentName, $container) {
             '<div class = \"panel-footer\" align=\"right\" id = \"comment_footer_' + comment.id + '\">' +
             '<button type=\"button\" class = \"btn btn-default reply\" name = \"' + comment.id + '\" id = \"'+ replyParent +'\">Ответить</button>' +
             '</div></div>';
-        $container.append(mainBlock);
+        container.innerHTML += mainBlock;
     } else {
         if (commentsGraph[comment.id] != null) {
             mainBlock = '<div class = \"panel panel-default\" style=\"margin-left: ' + marginLeft + 'px\">' +
@@ -167,12 +167,12 @@ function displayComment(comment, parentName, $container) {
                 '<div class = \"panel-footer\" align=\"right\" id = \"comment_footer_'+comment.id+'\">' +
                 '<button type=\"button\" class = \"btn btn-default reply\" name = \"'+ comment.id +'\" id = \"'+ replyParent +'\">Ответить</button>' +
                 '</div></div>';
-            $container.append(mainBlock);
+            container.innerHTML += mainBlock;
         }
     }
 }
 
-function displayDeletedComment(comment, $container) {
+function displayDeletedComment(comment, container) {
     var marginLeft = 0;
     if (comment.parent != 0) {
         marginLeft = 48;
@@ -180,7 +180,7 @@ function displayDeletedComment(comment, $container) {
     var mainBlock = '<div class = \"panel panel-default\" style=\"margin-left: ' + marginLeft + 'px\">' +
         '<div class = \"panel-body\" id = \"comment_content_' + comment.id + '\">Комментарий удален</div>' +
         '</div>';
-    $container.append(mainBlock);
+    container.innerHTML += mainBlock;
 }
 
 function autoSize(element) {
@@ -192,21 +192,21 @@ function autoSize(element) {
     $element.height(element.scrollHeight - paddingTopBottom);
 }
 
-function showComments(data, parentName, $container) {
+function showComments(data, parentName, container) {
     for (var i in data) {
         var comment = data[i];
         if (comment.deleted == 0) {
-            displayComment(comment, parentName, $container);
+            displayComment(comment, parentName, container);
         } else {
             if (commentsGraph[comment.id] != null) {
-                displayDeletedComment(comment, $container);
+                displayDeletedComment(comment, container);
             }
         }
         if (commentsGraph[comment.id] != null) {
-            $container.append('<button type=\"button\" class=\"btn btn-info\" data-toggle=\"collapse\" data-target=\"#replies_list_' + comment.id + '\">Ответы</button>');
+            container.innerHTML += '<button type=\"button\" class=\"btn btn-info\" data-toggle=\"collapse\" data-target=\"#replies_list_' + comment.id + '\">Ответы</button>';
             var isRootComment = comment.parent == 0;
             var replies = '<div id=\"replies_list_' + comment.id + '\" class=\"collapse\"></div><br/>';
-            $container.append(replies);
+            container.innerHTML += replies;
             if (isRootComment) {
                 replyParent = comment.id;
                 var replyForm = '<br/><form class=\"form-horizontal\"><div class=\"form-group\">' +
@@ -214,9 +214,9 @@ function showComments(data, parentName, $container) {
                     '<textarea class=\"col-xs-10 auto-size\" name =\"comment_content\" id = \"reply_text_area_' + comment.id + '\" rows=\"2\" style=\"margin-left: 48px\"></textarea>' +
                     '<button type=\"button\" class=\"btn btn-default submit2\" id = \"' + comment.id + '\">Отправить</button>' +
                     '</div></form><br/>';
-                $container.append(replyForm);
+                container.innerHTML += replyForm;
             }
-            showComments(commentsGraph[comment.id], comment.userName,$("#replies_list_" + comment.id));
+            showComments(commentsGraph[comment.id], comment.userName,document.getElementById("replies_list_" + comment.id));
         }
     }
 }
