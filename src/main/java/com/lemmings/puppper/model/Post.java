@@ -29,12 +29,11 @@ public class Post implements Serializable {
     @Column(name = "id")
     private Long id;
 
-    //    @ManyToOne(targetEntity = User.class, fetch = FetchType.EAGER)
     @Column(name = "user_id")
     private Long authorId;
     @Column(name = "content")
     private String content;
     @Column(name = "creation_date")
     private String creationDate;
-
+  
 }
