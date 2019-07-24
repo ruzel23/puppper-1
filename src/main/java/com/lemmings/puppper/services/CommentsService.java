@@ -21,33 +21,34 @@ public class CommentsService {
     }
 
     public Map<Long, Set<Comment>> getComments(Long postId) {
-        List<Comment> comments = commentsDAO.findAllByPostId(postId ,new Sort(Sort.Direction.ASC, "id"));
-        Comparator<Comment> comparator = Comparator.comparing(Comment::getId);
+        List<Comment> comments = commentsDAO.findAllByPostId(postId, new Sort(Sort.Direction.DESC, "id"));
         Map<Long, Set<Comment>> result = new HashMap<>();
-        result.put(0L, new TreeSet<>(comparator));
-        for (Comment c : comments) {
-            if (c.getParent() != null) {
+        if (!comments.isEmpty()) {
+            Comparator<Comment> comparator = Comparator.comparing(Comment::getId);
+            result.put(0L, new TreeSet<>(comparator));
+            for (Comment c : comments) {
+                if (c.getDeleted() != 0) {
+                    if (!result.containsKey(c.getId())) {
+                        continue;
+                    }
+                    c.setContent(null);
+                }
                 if (!result.containsKey(c.getParent())) {
                     result.put(c.getParent(), new TreeSet<>(comparator));
                 }
                 result.get(c.getParent()).add(c);
-            } else {
-                result.get(0L).add(c);
             }
         }
         return result;
     }
 
-    public void deleteComment(Long commentId) throws Exception {
-        if (commentsDAO.existsById(commentId)) {
-            commentsDAO.deleteById(commentId);
-        } else {
-            throw new Exception("Комментарий не существует");
-        }
+    public void deleteComment(Long commentId) {
+        //ToDo добавить проверку на права пользователя
+        commentsDAO.deleteComment(commentId);
     }
 
     public void editComment(Long id, String content) {
-        //ToDo добавить проверку на пользователя и на существование коммента.
+        //ToDo добавить проверку на пользователя
         commentsDAO.editComment(id, content);
     }
 }

@@ -12,7 +12,13 @@ import java.util.List;
 
 @Repository
 public interface CommentsDAO extends PagingAndSortingRepository<Comment, Long> {
+
     List<Comment> findAllByPostId(Long postId, Sort id);
+
+    @Modifying
+    @Transactional
+    @Query("update Comment c set c.deleted = 1 where c.id = ?1")
+    void deleteComment(Long commentId);
 
     @Modifying
     @Transactional
