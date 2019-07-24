@@ -7,7 +7,9 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
 
 import javax.persistence.*;
+import javax.validation.constraints.*;
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.*;
 
 @Data
@@ -19,23 +21,28 @@ public class Comment implements Serializable {
     @Column(name = "id")
     @GeneratedValue
     private Long id;
+    @NotNull
     @Column(name = "content")
+    @Size(min=1, max=160)
     private String content;
+    @NotNull
     @Column(name = "post_id")
     private Long postId;
+    @NotNull
     @Column(name = "parent_id")
     private Long parent;
+    @NotNull
     @Column(name = "user_id")
     private Long userId;
+    @NotBlank
     @Column(name = "user_name")
     private String userName;
-
-    public Comment(User user, Long postId, String content) {
-        this.userId = user.getId();
-        this.userName = user.getName();
-        this.postId = postId;
-        this.content = content;
-    }
+    @Column(name = "date")
+    private LocalDate txDate;
+    @DecimalMax("1")
+    @DecimalMin("0")
+    @Column(name = "deleted")
+    private Integer deleted;
 
     public Comment() {}
 
@@ -45,5 +52,6 @@ public class Comment implements Serializable {
         this.postId = postId;
         this.parent = parent;
         this.content = content;
+        this.deleted = 0;
     }
 }

@@ -6,12 +6,13 @@ import com.lemmings.puppper.model.User;
 import com.lemmings.puppper.services.CommentsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.HttpRequestHandler;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 
 @Controller
 @RequestMapping("/comments")
@@ -29,11 +30,13 @@ public class CommentsController {
     public AjaxBasicReturn createComment(@RequestParam("content") String content,
                                          @RequestParam("post_id") Long postId,
                                          @RequestParam("parent_id") Long parentId,
-                                         @RequestParam("user_id") Long userId,
-                                         @RequestParam("user_name") String userName) {
-        Comment comment = new Comment(userId, userName, postId, parentId, content);
+                                         HttpServletRequest request) {
+        Cookie[] cookie = request.getCookies();
+        String userName = cookie[1].getValue();
+        Long userId = Long.parseLong(cookie[2].getValue());
         Long freshCommentId;
         try {
+            Comment comment = new Comment(userId, userName, postId, parentId, content);
             freshCommentId = commentsService.createComment(comment);
         }
         catch (Exception e) {
@@ -65,8 +68,7 @@ public class CommentsController {
 
     @DeleteMapping("/deleteComment")
     @ResponseBody
-    public AjaxBasicReturn deleteComment(@RequestParam("user_id") Long userId,
-                                        @RequestParam("comment_id") Long commentId) {
+    public AjaxBasicReturn deleteComment(@RequestParam("comment_id") Long commentId) {
         try {
             commentsService.deleteComment(commentId);
         }
@@ -74,6 +76,6 @@ public class CommentsController {
             return new AjaxBasicReturn(false, e.getMessage());
         }
 
-        return new AjaxBasicReturn(true, "");
+        return new AjaxBasicReturn(true, commentId.toString());
     }
 }
