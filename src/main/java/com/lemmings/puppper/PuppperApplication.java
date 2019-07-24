@@ -18,9 +18,5 @@ public class PuppperApplication {
         SpringApplication.run(PuppperApplication.class, args);
     }
 
-    @RequestMapping(value = "/products")
-    public String getProductName() {
-        return "Honey";
-    }
 
 }
