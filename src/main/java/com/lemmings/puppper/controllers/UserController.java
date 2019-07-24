@@ -65,7 +65,7 @@ public class UserController {
         Cookie accessTokenCookie = new Cookie("access_token", token);
         Cookie userNameCookie = new Cookie("user_name", registeredUser.getName());
         Cookie userIdCookie = new Cookie("user_id", registeredUser.getId().toString());
-   //     Cookie roleIdCookie = new Cookie("role", registeredUser.getRole().getName());
+        Cookie roleIdCookie = new Cookie("role", registeredUser.getRole().getName());
 
 
         accessTokenCookie.setMaxAge(60 * 60);
@@ -75,7 +75,7 @@ public class UserController {
         response.addCookie(accessTokenCookie);
         response.addCookie(userNameCookie);
         response.addCookie(userIdCookie);
-       // response.addCookie(roleIdCookie);
+        response.addCookie(roleIdCookie);
 
         return new ModelAndView("welcome");
     }
@@ -105,7 +105,7 @@ public class UserController {
             Cookie accessTokenCookie = new Cookie("access_token", token);
             Cookie userNameCookie = new Cookie("user_name", userFind.getName());
             Cookie userIdCookie = new Cookie("user_id", userFind.getId().toString());
-       //     Cookie roleIdCookie = new Cookie("role", userFind.getRole().getName());
+            Cookie roleIdCookie = new Cookie("role", userFind.getRole().getName());
 
             accessTokenCookie.setMaxAge(60 * 60);
             model.addAttribute("token", token);
@@ -114,7 +114,7 @@ public class UserController {
             response.addCookie(accessTokenCookie);
             response.addCookie(userNameCookie);
             response.addCookie(userIdCookie);
-     //       response.addCookie(roleIdCookie);
+            response.addCookie(roleIdCookie);
 
             return new ModelAndView("welcome");
         } catch (AuthenticationException e) {

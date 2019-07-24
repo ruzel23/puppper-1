@@ -53,7 +53,7 @@ public class JwtTokenFilter extends GenericFilterBean {
     private void validateUserCookies(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
 
-        if (cookies.length != 3) {
+        if (cookies.length != 4) {
             throw new JwtAuthenticationException("Cookie invalid");
 
         }
@@ -62,10 +62,13 @@ public class JwtTokenFilter extends GenericFilterBean {
             String tokenCookie = cookies[0].getValue();
             String userNameCookei = cookies[1].getValue();
             Long userIdCookie = Long.valueOf(cookies[2].getValue());
+            String userRoleCookie = cookies[3].getValue();
 
             String email = jwtTokenProvider.getEmail(tokenCookie);
             User user = userService.findByEmail(email);
-            if (userIdCookie != user.getId() && userNameCookei != user.getName()) {
+            if (!userIdCookie.equals(user.getId())
+                    | !userNameCookei.equals(user.getName())
+                    | !userRoleCookie.equals(user.getRole().getName())) {
                 throw new JwtAuthenticationException("Cookie invalid");
             }
         } catch (NullPointerException e) {

@@ -46,7 +46,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/{id}").authenticated()
                 //      .antMatchers(ADMIN_ENDPOINT).hasRole("ADMIN")
                 .anyRequest().authenticated()
-                .and().logout().deleteCookies("access_token", "user_name", "user_id").logoutUrl("/logout")
+                .and().logout().deleteCookies("access_token", "user_name", "user_id", "role").logoutUrl("/logout")
                     .logoutSuccessUrl("/login").clearAuthentication(true)
                 .and()
                 .apply(new JwtConfigurer(jwtTokenProvider, userService));
