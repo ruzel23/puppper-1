@@ -4,19 +4,26 @@ var postId = 1; //ToDo совместить с модулем постов
 var $rootContainer = $("#getComments");
 var commentsGraph;
 var replyParent = 0;
-var editing = false;
 var editContent = "";
 var editFooter = "";
+var isShowComment = false;
+var editing = false;
 
 $(function() {
-    ajaxWrapper("/comments/getComments", "GET", {post_id : postId}, function(data) {
-        commentsGraph = data;
-        showComments(data[0], "", $rootContainer);
-        $('.auto-size').each(function() {
-            autoSize(this);
-        }).on('input', function() {
-            autoSize(this);
-        });
+    $("#comment_form").on("click", ".showComments", function (event) {
+        event.preventDefault();
+        if (!isShowComment) {
+            isShowComment = true;
+            ajaxWrapper("/comments/getComments", "GET", {post_id : postId}, function(data) {
+                commentsGraph = data;
+                showComments(data[0], "", $rootContainer);
+                $('.auto-size').each(function() {
+                    autoSize(this);
+                }).on('input', function() {
+                    autoSize(this);
+                });
+            });
+        }
     });
 
     $("#comment_form").on("submit", function (event) {

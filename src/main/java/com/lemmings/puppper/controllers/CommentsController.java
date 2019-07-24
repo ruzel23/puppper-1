@@ -2,11 +2,9 @@ package com.lemmings.puppper.controllers;
 
 import com.lemmings.puppper.model.AjaxBasicReturn;
 import com.lemmings.puppper.model.Comment;
-import com.lemmings.puppper.model.User;
 import com.lemmings.puppper.services.CommentsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.HttpRequestHandler;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.Cookie;
