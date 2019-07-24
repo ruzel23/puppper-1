@@ -52,14 +52,23 @@ public class JwtTokenFilter extends GenericFilterBean {
 
     private void validateUserCookies(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
-        String tokenCookie = cookies[0].getValue();
-        String userNameCookei = cookies[1].getValue();
-        Long userIdCookie = Long.valueOf(cookies[2].getValue());
 
-        String email = jwtTokenProvider.getEmail(tokenCookie);
-        User user = userService.findByEmail(email);
-        System.out.println("I WAS HERE ==================================================================================");
-        if (userIdCookie != user.getId() && userNameCookei != user.getName()) {
+        if (cookies.length != 3) {
+            throw new JwtAuthenticationException("Cookie invalid");
+
+        }
+        try {
+
+            String tokenCookie = cookies[0].getValue();
+            String userNameCookei = cookies[1].getValue();
+            Long userIdCookie = Long.valueOf(cookies[2].getValue());
+
+            String email = jwtTokenProvider.getEmail(tokenCookie);
+            User user = userService.findByEmail(email);
+            if (userIdCookie != user.getId() && userNameCookei != user.getName()) {
+                throw new JwtAuthenticationException("Cookie invalid");
+            }
+        } catch (NullPointerException e) {
             throw new JwtAuthenticationException("Cookie invalid");
         }
     }

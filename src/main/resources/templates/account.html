@@ -4,9 +4,13 @@
     <meta charset="UTF-8">
     <title>Account</title>
 </head>
+<body>
 <p th:text="${user.getId()}" /><br>
 <p th:text="${user.getEmail()}" /><br>
 <p th:text="${user.getName()}" /><br>
 <p th:text="${user.getPassword()}" /><br>
+<form action="/setings">
+    <button type="submit">setings</button>
+</form>
 </body>
 </html>

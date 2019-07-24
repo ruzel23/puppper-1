@@ -17,10 +17,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 
 // подорбней разобраться с этим классом
@@ -80,8 +77,11 @@ public class JwtTokenProvider {
         if (cookies == null) {
             return null;
         }
-        return cookies[0].getValue();
-
+        List<Cookie> list = Arrays.asList(cookies);
+        if (cookies[0].getName().equals("access_token")) {
+            return cookies[0].getValue();
+        }
+        return null;
     }
 
     public boolean validateToken(String token) {

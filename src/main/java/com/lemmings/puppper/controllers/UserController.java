@@ -52,28 +52,30 @@ public class UserController {
     public ModelAndView registration(@ModelAttribute("user") User user,
                                      @CookieValue(value = "access_token", required = false) String access_token,
                                      HttpServletResponse response,
-                                     BindingResult bindingResult,
                                      Model model) {
-        User userfind = userService.findByEmail(user.getEmail());
-        if (userfind != null) {
+        User userFind = userService.findByEmail(user.getEmail());
+        if (userFind != null) {
             model.addAttribute("error", "this user is already exists");
             return new ModelAndView("signup");
         }
 
         String token = jwtTokenProvider.createToken(user.getEmail()/*, user.getRoles()*/);
+        User registeredUser = userService.register(user);
+
         Cookie accessTokenCookie = new Cookie("access_token", token);
-        Cookie userNameCookie = new Cookie("user_name", user.getName());
-        Cookie userIdCookie = new Cookie("user_id", user.getId().toString());
+        Cookie userNameCookie = new Cookie("user_name", registeredUser.getName());
+        Cookie userIdCookie = new Cookie("user_id", registeredUser.getId().toString());
+   //     Cookie roleIdCookie = new Cookie("role", registeredUser.getRole().getName());
 
 
         accessTokenCookie.setMaxAge(60 * 60);
-        userService.register(user);
         model.addAttribute("token", token);
         model.addAttribute("user", user);
 
         response.addCookie(accessTokenCookie);
         response.addCookie(userNameCookie);
         response.addCookie(userIdCookie);
+       // response.addCookie(roleIdCookie);
 
         return new ModelAndView("welcome");
     }
@@ -88,7 +90,6 @@ public class UserController {
     public ModelAndView authentication(@ModelAttribute("user") User user,
                                        @CookieValue(value = "access_token", required = false) String access_token,
                                        HttpServletResponse response,
-                                       BindingResult bindingResult,
                                        Model model) {
         try {
             user.setRole(userService.findRoleByName("user"));
@@ -104,6 +105,8 @@ public class UserController {
             Cookie accessTokenCookie = new Cookie("access_token", token);
             Cookie userNameCookie = new Cookie("user_name", userFind.getName());
             Cookie userIdCookie = new Cookie("user_id", userFind.getId().toString());
+       //     Cookie roleIdCookie = new Cookie("role", userFind.getRole().getName());
+
             accessTokenCookie.setMaxAge(60 * 60);
             model.addAttribute("token", token);
             model.addAttribute("user", user);
@@ -111,6 +114,7 @@ public class UserController {
             response.addCookie(accessTokenCookie);
             response.addCookie(userNameCookie);
             response.addCookie(userIdCookie);
+     //       response.addCookie(roleIdCookie);
 
             return new ModelAndView("welcome");
         } catch (AuthenticationException e) {
@@ -129,6 +133,12 @@ public class UserController {
         model.addAttribute("id", cookie[2].getValue());
 
         return "test";
+    }
+
+    @GetMapping("/setpassword")
+    public String setPassword(Model model) {
+        model.addAttribute("user", new User());
+        return "setpassword";
     }
 
 
