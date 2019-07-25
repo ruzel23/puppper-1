@@ -6,6 +6,7 @@ var editContent = "";
 var editFooter = "";
 var isShowComment = false;
 var editing = false;
+const showCommentsMap = new Map();
 
 $(function() {
     init();
@@ -33,12 +34,12 @@ $(function() {
             '<input type=\"submit\" name = \"submit\" id = \"' + postId + '\" class = \"btn btn-info submit\" value=\"Отправить\"/></div>';
     }
 
-    $("#post_form").on("click", ".showComments", function (event) {
+    $(document).on("click", ".showComments", function (event) {
         event.preventDefault();
         let postId = $(this).attr("id");
-        if (!isShowComment) {
-            isShowComment = true;
-            showCommentHead(postId)
+        if (showCommentsMap.get(postId) == null || showCommentsMap.get(postId) === false) {
+            showCommentsMap.set(postId, true);
+            showCommentHead(postId);
             ajaxWrapper("/comments/getComments", "GET", {post_id : postId}, function(data) {
                 commentsGraph = data;
                 showComments(data[0], "", document.getElementById('root_comments_' + postId));
