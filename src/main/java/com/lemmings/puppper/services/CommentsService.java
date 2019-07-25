@@ -1,7 +1,9 @@
 package com.lemmings.puppper.services;
 
 import com.lemmings.puppper.dao.CommentsDAO;
+import com.lemmings.puppper.dao.PostDAO;
 import com.lemmings.puppper.model.Comment;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -10,14 +12,21 @@ import java.util.*;
 @Service
 public class CommentsService {
     private final CommentsDAO commentsDAO;
+    private final PostDAO postDAO;
 
-    public CommentsService(CommentsDAO commentDAO) {
+    @Autowired
+    public CommentsService(CommentsDAO commentDAO, PostDAO postDAO) {
         this.commentsDAO = commentDAO;
+        this.postDAO = postDAO;
     }
 
     public Long createComment(Comment comment) {
-        Comment freshComment = commentsDAO.save(comment);
-        return freshComment.getId();
+        //if (commentsDAO.existsById(comment.getPostId())) {
+            Comment freshComment = commentsDAO.save(comment);
+            return freshComment.getId();
+        //} else {
+        //    throw new PostNotExistsException("Пост не существует");
+        //}
     }
 
     public Map<Long, Set<Comment>> getComments(Long postId) {
@@ -42,13 +51,11 @@ public class CommentsService {
         return result;
     }
 
-    public void deleteComment(Long commentId) {
-        //ToDo добавить проверку на права пользователя
-        commentsDAO.deleteComment(commentId);
+    public void deleteComment(Long commentId, Long userId) {
+        commentsDAO.deleteComment(commentId, userId);
     }
 
-    public void editComment(Long id, String content) {
-        //ToDo добавить проверку на пользователя
-        commentsDAO.editComment(id, content);
+    public void editComment(Long commentId, String content, Long userId) {
+        commentsDAO.editComment(commentId, content, userId);
     }
 }

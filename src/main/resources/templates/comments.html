@@ -12,26 +12,19 @@
     <title>Comments</title>
     <style>
         textarea {
-            resize: none; /* Запрещаем изменять размер */
+            resize: none;
         }
     </style>
 </head>
 <body>
 <h1>Комментарии</h1>
-<form method="POST" id = "comment_form">
+<form id = "post_form">
     <div class="form-group">
-
-        <textarea name = "comment_content" id = "comment_content" class = "form-control auto-size" rows = "5" placeholder="Введите комментарий"></textarea>
-    </div>
-    <div class="form-group">
-        <input type="hidden" name="comment_id" id="comment_id" value="null"/>
-        <input type="submit" name = "submit" id = "submit" class = "btn btn-info" value="Отправить"/>
-        <input type="button" name = "showComments" id = "showComments" class = "btn btn-info showComments" value="Показать комментарии"/>
+        <input type="button" name = "showComments" id = "1" class = "btn btn-info showComments" value="Показать комментарии"/>
     </div>
 </form>
-<span id = "comment_message"></span>
 <br/>
-<div id="getComments">
+<div id="root_comments_1">
     <script src="/js/comments.js"></script>
 </div>
 </body>
