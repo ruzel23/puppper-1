@@ -77,7 +77,6 @@ public class JwtTokenProvider {
         if (cookies == null) {
             return null;
         }
-        List<Cookie> list = Arrays.asList(cookies);
         if (cookies[0].getName().equals("access_token")) {
             return cookies[0].getValue();
         }

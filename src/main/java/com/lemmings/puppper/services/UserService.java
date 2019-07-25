@@ -24,8 +24,6 @@ public class UserService {
     @Autowired
     private  PasswordEncoder passwordEncoder;
 
-
-    //регистрация для юзеров
     public User register(User user) {
         Role roleUser = findRoleByName("user");
 
@@ -47,6 +45,27 @@ public class UserService {
     public User findByEmail(String email) {
         User result = userDAO.findByEmail(email);
         return result;
+    }
+
+    public User setPassword(String email, String password) {
+        User user = findByEmail(email);
+        user.setPassword(passwordEncoder.encode(password));
+        userDAO.save(user);
+        return user;
+    }
+
+    public User setName(String email, String name) {
+        User user = findByEmail(email);
+        user.setName(name);
+        userDAO.save(user);
+        return user;
+    }
+
+    public User deleteToStatus(String email) {
+        User user = findByEmail(email);
+        user.setStatus(Status.DELETED);
+        userDAO.save(user);
+        return user;
     }
 
     public User findById(Long id) {
