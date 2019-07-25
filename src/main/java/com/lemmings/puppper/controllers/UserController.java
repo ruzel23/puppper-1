@@ -9,7 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -92,7 +94,7 @@ public class UserController {
                                        HttpServletResponse response,
                                        Model model) {
         try {
-            user.setRole(userService.findRoleByName("user"));
+            user.setRole(userService.findRoleByName("user")); // скорей всего не нужно
             String userEmail = user.getEmail();
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userEmail, user.getPassword()));
             User userFind = userService.findByEmail(userEmail);
@@ -123,23 +125,41 @@ public class UserController {
 
     }
 
-
-    @GetMapping("/test")
-    public String test(HttpServletRequest request, Model model) {
-        Cookie[] cookie = request.getCookies();
-
-        model.addAttribute("token", cookie[0].getValue());
-        model.addAttribute("name", cookie[1].getValue());
-        model.addAttribute("id", cookie[2].getValue());
-
-        return "test";
-    }
-
-    @GetMapping("/setpassword")
-    public String setPassword(Model model) {
+    @GetMapping("/update")
+    public String update(Model model) {
         model.addAttribute("user", new User());
-        return "setpassword";
+        return "update";
     }
 
+    @PostMapping("/update")
+    public ModelAndView update(@ModelAttribute("user") User user,
+                           HttpServletResponse response) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String currentUserEmail = auth.getName();
+        if (!user.getName().equals("")) {
+            Cookie userNameCookie = new Cookie("user_name", user.getName());
+            response.addCookie(userNameCookie);
+            userService.setName(currentUserEmail, user.getName());
+        }
+        if (!user.getPassword().equals("")) {
+            String token = jwtTokenProvider.createToken(user.getPassword());
+            Cookie accessTokenCookie = new Cookie("access_token", token);
+            response.addCookie(accessTokenCookie);
+            userService.setPassword(currentUserEmail, user.getPassword());
+        }
+        return new ModelAndView("welcome");
+    }
 
+    @GetMapping("/delete")
+    public String delete() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String currentUserEmail = auth.getName();
+        userService.deleteToStatus(currentUserEmail);
+        return "delete";
+    }
+
+    @GetMapping("/settings")
+    public String settings() {
+        return "settings";
+    }
 }
