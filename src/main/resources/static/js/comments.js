@@ -155,7 +155,7 @@ $(function() {
                         deleted: 0
                     };
                     let containerName = "replies_list_" + comment.parentId;
-                    replyParent = parentId;
+                    //replyParent = parentId;
                     displayComment(comment, "", containerName);
                     if (commentsGraphs.get(postId)[parentId] == null) {
                         document.getElementById("comment_" + parentId).innerHTML += '<button type=\"button\" class=\"btn btn-info\" data-toggle=\"collapse\" data-target=\"#replies_list_' + parentId + '\">Ответы</button>';
@@ -223,7 +223,9 @@ function showComments(data, parentName, containerName) {
         }
         if ((commentsGraphs.get(postId))[comment.id] != null) {
             container.innerHTML += '<button type=\"button\" class=\"btn btn-info\" data-toggle=\"collapse\" data-target=\"#replies_list_' + comment.id + '\">Ответы</button>';
-            replyParent = comment.id;
+            if (comment.parent == 0) {
+                replyParent = comment.id;
+            }
             showComments(commentsGraphs.get(postId)[comment.id], comment.userName, "replies_list_" + comment.id);
         }
 
