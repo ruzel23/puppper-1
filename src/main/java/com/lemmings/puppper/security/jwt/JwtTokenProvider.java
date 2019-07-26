@@ -1,8 +1,10 @@
 package com.lemmings.puppper.security.jwt;
 
 
+import com.lemmings.puppper.exceptions.NotFoundCookieException;
 import com.lemmings.puppper.model.Role;
 import com.lemmings.puppper.security.JwtUserDetailsService;
+import com.lemmings.puppper.util.CookieManager;
 import io.jsonwebtoken.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -77,10 +79,11 @@ public class JwtTokenProvider {
         if (cookies == null) {
             return null;
         }
-        if (cookies[0].getName().equals("access_token")) {
-            return cookies[0].getValue();
+        try {
+            return CookieManager.getToken(cookies);
+        } catch (NotFoundCookieException e) {
+            return null;
         }
-        return null;
     }
 
     public boolean validateToken(String token) {
