@@ -17,11 +17,11 @@ public interface CommentsDAO extends PagingAndSortingRepository<Comment, Long> {
 
     @Modifying
     @Transactional
-    @Query("update Comment c set c.deleted = 1 where c.id = ?1")
-    void deleteComment(Long commentId);
+    @Query("update Comment c set c.deleted = 1 where c.id = ?1 and c.userId = ?2")
+    void deleteComment(Long commentId, Long userId);
 
     @Modifying
     @Transactional
-    @Query("update Comment c set c.content = ?2 where c.id = ?1")
-    void editComment(Long id, String content);
+    @Query("update Comment c set c.content = ?2 where c.id = ?1 and c.userId = ?3")
+    void editComment(Long id, String content, Long userId);
 }
