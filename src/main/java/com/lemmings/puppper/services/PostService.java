@@ -4,12 +4,14 @@ import com.lemmings.puppper.dao.PostRepository;
 import com.lemmings.puppper.model.Post;
 import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional
 public class PostService {
 
     private final PostRepository postRepository;
@@ -18,33 +20,33 @@ public class PostService {
         this.postRepository = postRepository;
     }
 
+    @Transactional(readOnly = true)
     public List<Post> getAllPosts() {
         return postRepository.findAll();
     }
 
-//    public List<Post> getUserPosts(Long authorId) {
-//        return postRepository.findAllByAuthorId(authorId);
+    @Transactional(readOnly = true)
+    public List<Post> getUserPosts(Long authorId) {
+        return postRepository.findAllByAuthorId(authorId);
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<Post> getPostById(Long id) {
+        return postRepository.findById(id);
+    }
+
+    public Post save(Post post) {
+        return postRepository.save(post);
+    }
+
+//    public Post update(Post post) {
+//        Post toUpdate = postRepository.getOne(post.getId());
+//        toUpdate.setContent(post.getContent());
+//
+//        return postRepository.save(toUpdate);
 //    }
 
-    public Post getPostById(Long id) {
-        return postRepository
-                .findById(id)
-                .orElseThrow(RuntimeException::new);
-    }
-
-    public void savePost(Post post) {
-        post.setCreationDate(LocalDateTime.now().toString());
-        postRepository.save(post);
-    }
-
-    public Post updatePost(Post post) {
-        Post toUpdate = postRepository.getOne(post.getId());
-        toUpdate.setContent(post.getContent());
-
-        return postRepository.saveAndFlush(toUpdate);
-    }
-
-    public void deletePost(Long id) {
+    public void delete(Long id) {
         postRepository.deleteById(id);
     }
 

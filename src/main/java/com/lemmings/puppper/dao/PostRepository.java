@@ -8,6 +8,5 @@ import java.util.List;
 
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long> {
-
-//    List<Post> findAllByAuthorId(Long id);
+    List<Post> findAllByAuthorId(Long authorId);
 }
