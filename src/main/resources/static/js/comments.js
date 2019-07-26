@@ -175,32 +175,18 @@ function displayComment(comment, parentName, containerName) {
         marginLeft = 48;
         headingText += " ответил " + parentName;
     }
-    let mainBlock = '';
-    if (comment.deleted == 0) {
         let headRight = '';
         if (comment.userId == userId) {
             headRight = '<button type=\"button\" class=\"btn btn-link edit\" id = \"'+ comment.id +'\">Редактировать</button>' +
                 '<button type=\"button\" class=\"btn btn-link delete\" id = \"'+ comment.id +'\">Удалить</button>';
         }
-        mainBlock = '<div class = \"panel panel-default\" id = \"comment_' + comment.id + '\" style=\"margin-left: ' + marginLeft + 'px\">' +
+        document.getElementById(containerName).innerHTML += '<div class = \"panel panel-default\" id = \"comment_' + comment.id + '\" style=\"margin-left: ' + marginLeft + 'px\">' +
             '<div class = \"panel-heading\" id = \"user_' + comment.id + '\" name = \"'+ comment.userName +'\">' + headingText + '' + headRight +
             '</div>' +
             '<div class = \"panel-body\" id = \"comment_content_'+ comment.id+'\">' + comment.content + '</div>' +
             '<div class = \"panel-footer\" align=\"right\" id = \"comment_footer_' + comment.id + '\">' +
             '<button type=\"button\" class = \"btn btn-default reply\" name = \"' + comment.id + '\" id = \"'+ replyParent +'\">Ответить</button>' +
-            '</div><div id=\"replies_list_' + comment.id + '\" class = \"collapse\"></div><br/></div>';
-        document.getElementById(containerName).innerHTML += mainBlock;
-    } else {
-        if (commentsGraphs.get(comment.postId)[comment.id] != null) {
-            mainBlock = '<div class = \"panel panel-default\" style=\"margin-left: ' + marginLeft + 'px\">' +
-                '<div class = \"panel-heading\" id = \"user_' + comment.id + '\" name = \"' + comment.userName+'\">' + headingText + '</div>' +
-                '<div class = \"panel-body\" id = \"comment_content_' + comment.id + '\">Комментарий удален</div>' +
-                '<div class = \"panel-footer\" align=\"right\" id = \"comment_footer_'+comment.id+'\">' +
-                '<button type=\"button\" class = \"btn btn-default reply\" name = \"'+ comment.id +'\" id = \"'+ replyParent +'\">Ответить</button>' +
-                '</div></div><br/><div id=\"replies_list_' + comment.id + '\"></div><br/>';
-            document.getElementById(containerName).innerHTML += mainBlock;
-        }
-    }
+            '</div><div id=\"replies_list_' + comment.id + '\" class = \"collapse\"></div></div>';
 }
 
 function displayDeletedComment(comment, container) {
@@ -210,7 +196,7 @@ function displayDeletedComment(comment, container) {
     }
     let mainBlock = '<div class = \"panel panel-default\" style=\"margin-left: ' + marginLeft + 'px\">' +
         '<div class = \"panel-body\" id = \"comment_content_' + comment.id + '\">Комментарий удален</div>' +
-        '</div><br/><div id=\"replies_list_' + comment.id + '\" class = \"collapse\"></div><br/>';
+        '</div><div id=\"replies_list_' + comment.id + '\" class = \"collapse\"></div>';
     container.innerHTML += mainBlock;
 }
 
