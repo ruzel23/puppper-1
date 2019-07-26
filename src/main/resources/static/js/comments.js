@@ -41,7 +41,7 @@ $(function() {
             showCommentHead(postId);
             ajaxWrapper("/comments/getComments", "GET", {post_id : postId}, function(data) {
                 commentsGraphs.set(parseInt(postId), data);
-                showComments(data[0], "", document.getElementById('root_comments_' + postId));
+                showComments(data[0], "", 'root_comments_' + postId);
                 $('.auto-size').each(function() {
                     autoSize(this);
                 }).on('input', function() {
@@ -64,7 +64,13 @@ $(function() {
                         '<div class = \"panel-body\" id = \"comment_content_' + commentId + '\">' + content + '</div>' +
                         '<div class = \"panel-footer\" align=\"right\" id = \"comment_footer_' + commentId + '\">' +
                         '<button type=\"button\" class = \"btn btn-default reply\" name = \"' + commentId + '\" id = \"' + commentId + '\">Ответить</button>' +
-                        '</div></div>';
+                        '</div><div id=\"replies_list_' + commentId + '\"></div><br/>' +
+                        '<br/><form class=\"form-horizontal\"><div class=\"form-group\">' +
+                        '<input type=\"hidden\" name=\"' + postId + '\" id=\"reply_' + commentId + '\" value=\"' + commentId + '\"/>' +
+                        '<textarea class=\"col-xs-10 auto-size\" name =\"comment_content\" id = \"reply_text_area_' + commentId + '\" rows=\"2\" style=\"margin-left: 48px\"></textarea>' +
+                        '<button type=\"button\" class=\"btn btn-default submit2\" id = \"' + commentId + '\">Отправить</button>' +
+                        '</div></form><br/>';
+                    commentsGraphs.set(commentId, {});
                     document.getElementById('root_comments_' + postId).innerHTML += mainBlock;
                 } else {
                     alert(data.message);
@@ -73,11 +79,11 @@ $(function() {
     });
 
     $(document).on("click", ".reply", function () {
-        var parentId = $(this).attr("id");
-        var commentId = $(this).attr("name");
-        var userName = $("#user_"+commentId).attr("name");
+        let parentId = $(this).attr("id");
+        let commentId = $(this).attr("name");
+        let userName = $("#user_" + commentId).attr("name");
         $("#reply_text_area_"+parentId).val(userName+", ");
-        if (parentId == 0) {
+        if (parentId === 0) {
             parentId = commentId;
         }
         $("#reply_"+parentId).val(commentId);
@@ -136,7 +142,7 @@ $(function() {
         let commentId = $(this).attr("id");
         let content = $("#reply_text_area_" + commentId).val();
         let parentId = $("#reply_" + commentId).val();
-        let postId = $("#reply_" + commentId).attr('name');
+        let postId = parseInt($("#reply_" + commentId).attr('name'));
         ajaxWrapper("/comments/addComment", "POST", {post_id : postId, content : content, parent_id : parentId},
             function(data) {
                 if (data.success) {
@@ -148,7 +154,13 @@ $(function() {
                         content: content,
                         deleted: 0
                     };
-                    displayComment(comment, "", document.getElementById("replies_list_" + parentId));
+                    let containerName = "replies_list_" + comment.parentId;
+                    replyParent = parentId;
+                    displayComment(comment, "", containerName);
+                    if (commentsGraphs.get(postId)[parentId] == null) {
+                        document.getElementById("comment_" + parentId).innerHTML += '<button type=\"button\" class=\"btn btn-info\" data-toggle=\"collapse\" data-target=\"#replies_list_' + parentId + '\">Ответы</button>';
+                        (commentsGraphs.get(postId))[parentId] = {};
+                    }
                 } else {
                     alert(data.message);
                 }
@@ -156,15 +168,15 @@ $(function() {
     });
 });
 
-function displayComment(comment, parentName, container) {
-    var marginLeft = 0;
-    var headingText = comment.userName;
-    if (comment.parent != 0) {
+function displayComment(comment, parentName, containerName) {
+    let marginLeft = 0;
+    let headingText = comment.userName;
+    if (comment.parent !== 0) {
         marginLeft = 48;
         headingText += " ответил " + parentName;
     }
-    var mainBlock = '';
-    if (comment.deleted === 0) {
+    let mainBlock = '';
+    if (comment.deleted == 0) {
         let headRight = '';
         if (comment.userId == userId) {
             headRight = '<button type=\"button\" class=\"btn btn-link edit\" id = \"'+ comment.id +'\">Редактировать</button>' +
@@ -176,8 +188,8 @@ function displayComment(comment, parentName, container) {
             '<div class = \"panel-body\" id = \"comment_content_'+ comment.id+'\">' + comment.content + '</div>' +
             '<div class = \"panel-footer\" align=\"right\" id = \"comment_footer_' + comment.id + '\">' +
             '<button type=\"button\" class = \"btn btn-default reply\" name = \"' + comment.id + '\" id = \"'+ replyParent +'\">Ответить</button>' +
-            '</div></div>';
-        container.innerHTML += mainBlock;
+            '</div><div id=\"replies_list_' + comment.id + '\" class = \"collapse\"></div><br/></div>';
+        document.getElementById(containerName).innerHTML += mainBlock;
     } else {
         if (commentsGraphs.get(comment.postId)[comment.id] != null) {
             mainBlock = '<div class = \"panel panel-default\" style=\"margin-left: ' + marginLeft + 'px\">' +
@@ -185,8 +197,8 @@ function displayComment(comment, parentName, container) {
                 '<div class = \"panel-body\" id = \"comment_content_' + comment.id + '\">Комментарий удален</div>' +
                 '<div class = \"panel-footer\" align=\"right\" id = \"comment_footer_'+comment.id+'\">' +
                 '<button type=\"button\" class = \"btn btn-default reply\" name = \"'+ comment.id +'\" id = \"'+ replyParent +'\">Ответить</button>' +
-                '</div></div>';
-            container.innerHTML += mainBlock;
+                '</div></div><br/><div id=\"replies_list_' + comment.id + '\"></div><br/>';
+            document.getElementById(containerName).innerHTML += mainBlock;
         }
     }
 }
@@ -198,7 +210,7 @@ function displayDeletedComment(comment, container) {
     }
     let mainBlock = '<div class = \"panel panel-default\" style=\"margin-left: ' + marginLeft + 'px\">' +
         '<div class = \"panel-body\" id = \"comment_content_' + comment.id + '\">Комментарий удален</div>' +
-        '</div>';
+        '</div><br/><div id=\"replies_list_' + comment.id + '\" class = \"collapse\"></div><br/>';
     container.innerHTML += mainBlock;
 }
 
@@ -211,12 +223,13 @@ function autoSize(element) {
     $element.height(element.scrollHeight - paddingTopBottom);
 }
 
-function showComments(data, parentName, container) {
+function showComments(data, parentName, containerName) {
     for (let i in data) {
+        let container = document.getElementById(containerName);
         let comment = data[i];
         let postId = comment.postId;
-        if (comment.deleted === 0) {
-            displayComment(comment, parentName, container);
+        if (comment.deleted == 0) {
+            displayComment(comment, parentName, containerName);
         } else {
             if ((commentsGraphs.get(postId))[comment.id] != null) {
                 displayDeletedComment(comment, container);
@@ -224,13 +237,11 @@ function showComments(data, parentName, container) {
         }
         if ((commentsGraphs.get(postId))[comment.id] != null) {
             container.innerHTML += '<button type=\"button\" class=\"btn btn-info\" data-toggle=\"collapse\" data-target=\"#replies_list_' + comment.id + '\">Ответы</button>';
-            let replies = '<div id=\"replies_list_' + comment.id + '\" class=\"collapse\"></div><br/>';
-            container.innerHTML += replies;
-            showComments(commentsGraphs.get(postId)[comment.id], comment.userName, document.getElementById("replies_list_" + comment.id));
+            replyParent = comment.id;
+            showComments(commentsGraphs.get(postId)[comment.id], comment.userName, "replies_list_" + comment.id);
         }
 
         if (comment.parent === 0) {
-            replyParent = comment.id;
             container.innerHTML += '<br/><form class=\"form-horizontal\"><div class=\"form-group\">' +
                 '<input type=\"hidden\" name=\"' + comment.postId + '\" id=\"reply_' + comment.id + '\" value=\"' + comment.id + '\"/>' +
                 '<textarea class=\"col-xs-10 auto-size\" name =\"comment_content\" id = \"reply_text_area_' + comment.id + '\" rows=\"2\" style=\"margin-left: 48px\"></textarea>' +
