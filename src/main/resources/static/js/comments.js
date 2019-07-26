@@ -176,7 +176,7 @@ function displayComment(comment, parentName, containerName) {
         headingText += " ответил " + parentName;
     }
     let mainBlock = '';
-    if (comment.deleted === 0) {
+    if (comment.deleted == 0) {
         let headRight = '';
         if (comment.userId == userId) {
             headRight = '<button type=\"button\" class=\"btn btn-link edit\" id = \"'+ comment.id +'\">Редактировать</button>' +
@@ -197,7 +197,7 @@ function displayComment(comment, parentName, containerName) {
                 '<div class = \"panel-body\" id = \"comment_content_' + comment.id + '\">Комментарий удален</div>' +
                 '<div class = \"panel-footer\" align=\"right\" id = \"comment_footer_'+comment.id+'\">' +
                 '<button type=\"button\" class = \"btn btn-default reply\" name = \"'+ comment.id +'\" id = \"'+ replyParent +'\">Ответить</button>' +
-                '</div></div>';
+                '</div></div><br/><div id=\"replies_list_' + comment.id + '\"></div><br/>';
             document.getElementById(containerName).innerHTML += mainBlock;
         }
     }
@@ -210,7 +210,7 @@ function displayDeletedComment(comment, container) {
     }
     let mainBlock = '<div class = \"panel panel-default\" style=\"margin-left: ' + marginLeft + 'px\">' +
         '<div class = \"panel-body\" id = \"comment_content_' + comment.id + '\">Комментарий удален</div>' +
-        '</div>';
+        '</div><br/><div id=\"replies_list_' + comment.id + '\" class = \"collapse\"></div><br/>';
     container.innerHTML += mainBlock;
 }
 
@@ -228,7 +228,7 @@ function showComments(data, parentName, containerName) {
         let container = document.getElementById(containerName);
         let comment = data[i];
         let postId = comment.postId;
-        if (comment.deleted === 0) {
+        if (comment.deleted == 0) {
             displayComment(comment, parentName, containerName);
         } else {
             if ((commentsGraphs.get(postId))[comment.id] != null) {
