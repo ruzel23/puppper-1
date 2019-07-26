@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.*;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
@@ -35,11 +36,11 @@ public class Post implements Serializable {
     @Column(name = "creation_date")
     private LocalDateTime creationDate;
 
-//    @JsonIgnore
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
     private User author;
-
+    
+    @JsonManagedReference
     @OneToMany(mappedBy = "postId",cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Comment> comments;
   

@@ -27,61 +27,6 @@ $(function () {
         userName = getCookie("user_name");
     }
 
-    function showPosts(data) {
-
-        var container = $("#postList");
-
-        for (var i in data) {
-            container.append(renderPost(data[i]));
-        }
-    }
-
-    function renderPost(post) {
-        let author_id = post.author.id;
-        let author_name = post.author.name;
-        let date = new Date(post.creationDate + "Z");
-
-        let header = postHeader(post.id, author_id, author_name, date);
-        let body = `<div class="dropdown-divider m-0 mb-2"></div>
-<p class="lead" id="content_${post.id}">${post.content}</p>
-<input type="button" name="showComments" id="${post.id}" class="btn btn-info mb-1 showComments" value="Show comments"/>
-<br/>
-<div id="root_comments_${post.id}"></div>
-`;
-
-        return `<div class="postItem media mb-3 pr-3 pt-1 border border-primary rounded" id=${post.id}>
-	<img src="/images/userpic.svg" width="50" height="50" class="m-2">
-	<div class="media-body">
-		${header}
-		${body}
-	</div>
-</div>`
-    }
-
-    function postHeader(post_id, author_id, author_name, date) {
-        let dropdown = author_id.toString() === user_id ?
-            `<div class="bd-highlight">
-<div class="dropdown">
-<button class="btn btn-link dropdown-toggle" type="button" data-toggle="dropdown">
-</button>
-<div class="dropdown-menu dropdown-menu-right">
-<button class="dropdown-item editPost" id="${post_id}">Edit</button>
-<button class="dropdown-item deletePost" id="${post_id}"=>Delete</button>
-</div>
-</div>
-</div>`
-            : '';
-
-        return `<div class="d-flex bd-highlight">
-	<div class="flex-grow-1 bd-highlight">
-		<a class="h3 m-0" href="#">${author_name}</a>
-		<a class="h7 ml-2 text-muted" href="#">${date.getDate() + '.' + date.getMonth()
-        + ' ' + date.getHours() + ':' + date.getMinutes()}</a>
-	</div>
-	${dropdown}
-</div>`;
-    }
-
     $(document).on('click', '.deletePost', function () {
         let postId = $(this).attr("id");
         axios.delete('/api/posts/' + postId)
@@ -129,3 +74,58 @@ $(function () {
         tempBody = null;
     })
 });
+
+function showPosts(data) {
+
+    var container = $("#postList");
+
+    for (var i in data) {
+        container.append(renderPost(data[i]));
+    }
+}
+
+function renderPost(post) {
+    let author_id = post.author.id;
+    let author_name = post.author.name;
+    let date = new Date(post.creationDate + "Z");
+
+    let header = postHeader(post.id, author_id, author_name, date);
+    let body = `<div class="dropdown-divider m-0 mb-2"></div>
+<p class="lead" id="content_${post.id}">${post.content}</p>
+<input type="button" name="showComments" id="${post.id}" class="btn btn-info mb-1 showComments" value="Show comments"/>
+<br/>
+<div id="root_comments_${post.id}"></div>
+`;
+
+    return `<div class="postItem media mb-3 pr-3 pt-1 border border-primary rounded" id=${post.id}>
+	<img src="/images/userpic.svg" width="50" height="50" class="m-2">
+	<div class="media-body">
+		${header}
+		${body}
+	</div>
+</div>`
+}
+
+function postHeader(post_id, author_id, author_name, date) {
+    let dropdown = author_id.toString() === user_id ?
+        `<div class="bd-highlight">
+<div class="dropdown">
+<button class="btn btn-link dropdown-toggle" type="button" data-toggle="dropdown">
+</button>
+<div class="dropdown-menu dropdown-menu-right">
+<button class="dropdown-item editPost" id="${post_id}">Edit</button>
+<button class="dropdown-item deletePost" id="${post_id}"=>Delete</button>
+</div>
+</div>
+</div>`
+        : '';
+
+    return `<div class="d-flex bd-highlight">
+	<div class="flex-grow-1 bd-highlight">
+		<a class="h3 m-0" href="#">${author_name}</a>
+		<a class="h7 ml-2 text-muted" href="#">${date.getDate() + '.' + date.getMonth()
+    + ' ' + date.getHours() + ':' + date.getMinutes()}</a>
+	</div>
+	${dropdown}
+</div>`;
+}
