@@ -2,16 +2,18 @@ package com.lemmings.puppper.controllers;
 
 import com.lemmings.puppper.model.AjaxBasicReturn;
 import com.lemmings.puppper.model.Comment;
-import com.lemmings.puppper.model.User;
 import com.lemmings.puppper.services.CommentsService;
+import com.lemmings.puppper.util.CookieManager;
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 
 @Controller
 @RequestMapping("/comments")
@@ -29,28 +31,31 @@ public class CommentsController {
     public AjaxBasicReturn createComment(@RequestParam("content") String content,
                                          @RequestParam("post_id") Long postId,
                                          @RequestParam("parent_id") Long parentId,
-                                         @RequestParam("user_id") Long userId,
-                                         @RequestParam("user_name") String userName) {
-        Comment comment = new Comment(userId, userName, postId, parentId, content);
-        Long freshCommentId;
+                                         HttpServletRequest request) {
+        Cookie[] cookie = request.getCookies();
         try {
-            freshCommentId = commentsService.createComment(comment);
+            String userName = CookieManager.getUserName(cookie);
+            Long userId = CookieManager.getUserId(cookie);
+            Comment comment = new Comment(userId, userName, postId, parentId, content);
+            Long freshCommentId = commentsService.createComment(comment);
+            return new AjaxBasicReturn(true, freshCommentId.toString());
+        } catch (DataIntegrityViolationException e) {
+            return new AjaxBasicReturn(false, "Пост не существует!");
+        } catch (Exception e) {
+            return new AjaxBasicReturn(false, "Неизвестная ошибка.");
         }
-        catch (Exception e) {
-            return new AjaxBasicReturn(false, e.getMessage());
-        }
-
-        return new AjaxBasicReturn(true, freshCommentId.toString());
     }
 
     @PostMapping("/editComment")
     @ResponseBody
-    public AjaxBasicReturn editComment(@RequestParam("id") Long id,
-                                         @RequestParam("content") String content) {
+    public AjaxBasicReturn editComment(@RequestParam("id") Long commentId,
+                                       @RequestParam("content") String content,
+                                       HttpServletRequest request) {
+        Cookie[] cookie = request.getCookies();
         try {
-            commentsService.editComment(id, content);
-        }
-        catch (Exception e) {
+            Long userId = CookieManager.getUserId(cookie);
+            commentsService.editComment(commentId, content, userId);
+        } catch (Exception e) {
             return new AjaxBasicReturn(false, e.getMessage());
         }
 
@@ -65,15 +70,15 @@ public class CommentsController {
 
     @DeleteMapping("/deleteComment")
     @ResponseBody
-    public AjaxBasicReturn deleteComment(@RequestParam("user_id") Long userId,
-                                        @RequestParam("comment_id") Long commentId) {
+    public AjaxBasicReturn deleteComment(@RequestParam("comment_id") Long commentId, HttpServletRequest request) {
+        Cookie[] cookie = request.getCookies();
         try {
-            commentsService.deleteComment(commentId);
-        }
-        catch (Exception e) {
+            Long userId = CookieManager.getUserId(cookie);
+            commentsService.deleteComment(commentId, userId);
+        } catch (Exception e) {
             return new AjaxBasicReturn(false, e.getMessage());
         }
 
-        return new AjaxBasicReturn(true, "");
+        return new AjaxBasicReturn(true, commentId.toString());
     }
 }

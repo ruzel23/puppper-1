@@ -59,7 +59,7 @@ public class PostControllerTest {
 		user.setPassword("test");
 		
 		post = new Post(1L, "test", LocalDateTime.now(), user, comments);
-		Comment comment = new Comment(user, 1L, "test");
+		Comment comment = new Comment();
 		
 		post.getComments().add(comment);
 		posts.add(post);

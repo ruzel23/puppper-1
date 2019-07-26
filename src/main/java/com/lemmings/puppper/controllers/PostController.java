@@ -16,15 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.net.URI;
@@ -32,7 +24,7 @@ import java.util.List;
 
 
 @RestController
-@RequestMapping("/posts")
+@RequestMapping("/api/posts")
 @RequiredArgsConstructor
 public class PostController {
 	
@@ -64,16 +56,17 @@ public class PostController {
 	}
 	
 	@PutMapping("/{pid}")
-	public ResponseEntity<Post> updatePost(@RequestBody @Valid Post post,
+	public ResponseEntity<Post> updatePost(@RequestBody Post post,
 	                                       @PathVariable Long pid,
 	                                       BindingResult result) {
 		if (result.hasErrors()) {
 			throw new IllegalArgumentException("invalid request data");
 		}
 		
-		findPost(pid);
+		Post toUpdate = findPost(pid);
+		toUpdate.setContent(post.getContent());
 		
-		return ResponseEntity.ok(postService.save(post));
+		return ResponseEntity.ok(postService.save(toUpdate));
 	}
 	
 	@DeleteMapping("/{pid}")

@@ -37,10 +37,10 @@ public class Post implements Serializable {
 
 //    @JsonIgnore
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "author_id")
+    @JoinColumn(name = "user_id")
     private User author;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "postId",cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Comment> comments;
   
 }

@@ -7,6 +7,8 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.web.bind.annotation.RequestMapping;
+
 
 @SpringBootApplication
 @EnableCaching
@@ -15,5 +17,6 @@ public class PuppperApplication {
     public static void main(String[] args) {
         SpringApplication.run(PuppperApplication.class, args);
     }
+
 
 }
