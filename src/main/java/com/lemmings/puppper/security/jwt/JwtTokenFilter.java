@@ -51,7 +51,9 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     }
 
     private void validateUserCookies(HttpServletRequest request) {
+
         Cookie[] cookies = request.getCookies();
+
         try {
             String tokenCookie = CookieManager.getToken(cookies);
             String userNameCookie = CookieManager.getUserName(cookies);
