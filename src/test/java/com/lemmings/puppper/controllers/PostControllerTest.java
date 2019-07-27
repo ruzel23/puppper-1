@@ -18,7 +18,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lemmings.puppper.model.Comment;
 import com.lemmings.puppper.model.Post;
 import com.lemmings.puppper.model.User;
-import com.lemmings.puppper.services.CommentsService;
+import com.lemmings.puppper.services.UserService;
 import com.lemmings.puppper.services.PostService;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,7 +49,7 @@ public class PostControllerTest {
 	private PostService postService;
 	
 	@MockBean
-	private CommentsService commentsService;
+	private UserService commentsService;
 	
 	@Before
 	public void initPosts() {

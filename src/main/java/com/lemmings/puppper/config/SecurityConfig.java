@@ -1,5 +1,6 @@
 package com.lemmings.puppper.config;
 
+import com.lemmings.puppper.security.jwt.JwtAuthenticationEntryPoint;
 import com.lemmings.puppper.security.jwt.JwtConfigurer;
 import com.lemmings.puppper.security.jwt.JwtTokenProvider;
 import com.lemmings.puppper.services.UserService;
@@ -8,17 +9,18 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.AuthenticationEntryPoint;
 
 @Configuration
+@EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final UserService userService;
 
-    private static final String ADMIN_ENDPOINT = "url here";
-    private static final String LOGIN_ENDPOINT = "url here";
 
     @Autowired
     public SecurityConfig(JwtTokenProvider jwtTokenProvider, UserService userService) {
@@ -42,13 +44,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/signup").permitAll()
                 .antMatchers("/login").permitAll()
-                .antMatchers("/commTest/timeline").permitAll()
-                .antMatchers("/settings").authenticated()
-                .antMatchers("/{id}").authenticated()
-                //      .antMatchers(ADMIN_ENDPOINT).hasRole("ADMIN")
-                .anyRequest().permitAll()
+                .anyRequest().authenticated()
                 .and().logout().deleteCookies("access_token", "user_name", "user_id", "role").logoutUrl("/logout")
                     .logoutSuccessUrl("/login").clearAuthentication(true)
+                .and().exceptionHandling().authenticationEntryPoint(new JwtAuthenticationEntryPoint())
                 .and()
                 .apply(new JwtConfigurer(jwtTokenProvider, userService));
     }

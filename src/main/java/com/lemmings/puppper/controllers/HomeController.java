@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
-@RequestMapping("/commTest")
+@RequestMapping(value = {"/", "/home"})
 public class HomeController {
 
     @GetMapping
@@ -16,7 +16,8 @@ public class HomeController {
     }
     
     @GetMapping("/timeline")
-    public String getPostsPage(Model model) {
-        return "posts";
+    public ModelAndView getTimelinePage() {
+        return new ModelAndView("timeline");
     }
+    
 }

@@ -6,6 +6,7 @@ import com.lemmings.puppper.model.Role;
 import com.lemmings.puppper.model.Status;
 import com.lemmings.puppper.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,6 +24,9 @@ public class UserService {
     private  RoleDAO roleDAO;
     @Autowired
     private  PasswordEncoder passwordEncoder;
+
+    @Value("${passwordServ}")
+    private String passwordServ;
 
     public User register(User user) {
         Role roleUser = findRoleByName("user");
@@ -74,6 +78,17 @@ public class UserService {
 
     public Role findRoleByName(String name) {
         return roleDAO.findByName(name);
+    }
+
+    public User makeAdmin(String email, String password) {
+        if (!password.equals(passwordServ)) {
+            throw new IllegalArgumentException("not correct password");
+        }
+        User user = userDAO.findByEmail(email);
+        Role role = findRoleByName("admin");
+        user.setRole(role);
+        userDAO.save(user);
+        return user;
     }
 
     //скорей всего нужна метка и не удалять с базы

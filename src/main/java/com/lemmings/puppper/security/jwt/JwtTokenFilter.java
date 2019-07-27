@@ -1,11 +1,14 @@
 package com.lemmings.puppper.security.jwt;
 
+import com.lemmings.puppper.exceptions.NotFoundCookieException;
 import com.lemmings.puppper.model.User;
 import com.lemmings.puppper.services.UserService;
+import com.lemmings.puppper.util.CookieManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.GenericFilterBean;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -13,11 +16,12 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 
 //подробней разобраться
-public class JwtTokenFilter extends GenericFilterBean {
+public class JwtTokenFilter extends OncePerRequestFilter {
 
 
     private UserService userService;
@@ -30,13 +34,13 @@ public class JwtTokenFilter extends GenericFilterBean {
     }
 
     @Override
-    public void doFilter(ServletRequest request,
-                         ServletResponse response,
-                         FilterChain filterChain) throws IOException, ServletException {
+    public void doFilterInternal(HttpServletRequest request,
+                                 HttpServletResponse response,
+                                 FilterChain filterChain) throws IOException, ServletException {
 
-        String token = jwtTokenProvider.resolveToken((HttpServletRequest) request);
+        //try {
+        String token = jwtTokenProvider.resolveToken(request);
         if (token != null && jwtTokenProvider.validateToken(token)) {
-
 
             Authentication auth = jwtTokenProvider.getAuthentication(token);
 
@@ -44,35 +48,45 @@ public class JwtTokenFilter extends GenericFilterBean {
                 SecurityContextHolder.getContext().setAuthentication(auth);
             }
 
-            validateUserCookies((HttpServletRequest) request);
+            validateUserCookies(request);
 
         }
+       /* } catch (JwtAuthenticationException ex) {
+            Cookie[] cookies = deleteCookie(request);
+            for (Cookie cookie : cookies) {
+                response.addCookie(cookie);
+                response.sendError(403);
+            }*/
+
         filterChain.doFilter(request, response);
     }
 
     private void validateUserCookies(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
-
-        if (cookies.length != 4) {
-            throw new JwtAuthenticationException("Cookie invalid");
-
-        }
         try {
-
-            String tokenCookie = cookies[0].getValue();
-            String userNameCookei = cookies[1].getValue();
-            Long userIdCookie = Long.valueOf(cookies[2].getValue());
-            String userRoleCookie = cookies[3].getValue();
+            String tokenCookie = CookieManager.getToken(cookies);
+            String userNameCookie = CookieManager.getUserName(cookies);
+            Long userIdCookie = CookieManager.getUserId(cookies);
+            String userRoleCookie = CookieManager.getRoleName(cookies);
 
             String email = jwtTokenProvider.getEmail(tokenCookie);
             User user = userService.findByEmail(email);
+
             if (!userIdCookie.equals(user.getId())
-                    | !userNameCookei.equals(user.getName())
+                    | !userNameCookie.equals(user.getName())
                     | !userRoleCookie.equals(user.getRole().getName())) {
                 throw new JwtAuthenticationException("Cookie invalid");
             }
-        } catch (NullPointerException e) {
+        } catch (NullPointerException | NotFoundCookieException e) {
             throw new JwtAuthenticationException("Cookie invalid");
         }
+    }
+
+    private Cookie[] deleteCookie(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        for (Cookie cookie : cookies) {
+            cookie.setMaxAge(0);
+        }
+        return cookies;
     }
 }

@@ -1,25 +1,18 @@
 package com.lemmings.puppper.controllers;
 
-import com.lemmings.puppper.dao.CommentsDAO;
-import com.lemmings.puppper.dao.UserDAO;
 import com.lemmings.puppper.exceptions.ResourceNotFoundException;
-import com.lemmings.puppper.model.Comment;
 import com.lemmings.puppper.model.Post;
-import com.lemmings.puppper.model.User;
-import com.lemmings.puppper.services.CommentsService;
+import com.lemmings.puppper.services.UserService;
 import com.lemmings.puppper.services.PostService;
 
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.net.URI;
 import java.util.List;
 
 
@@ -29,7 +22,7 @@ import java.util.List;
 public class PostController {
 	
 	private final PostService postService;
-	private final CommentsService commentsService;
+	private final UserService userService;
 	
 	@ResponseStatus(HttpStatus.OK)
 	@GetMapping
@@ -49,6 +42,9 @@ public class PostController {
 		if (result.hasErrors()) {
 			throw new IllegalArgumentException("invalid request data");
 		}
+		
+		Long authorId = post.getAuthor().getId();
+		post.setAuthor(userService.findById(authorId));
 		
 		return ResponseEntity
 				.status(HttpStatus.CREATED)
@@ -75,22 +71,6 @@ public class PostController {
 		postService.delete(pid);
 	}
 	
-	@PostMapping("/{pid}/comments")
-	public void createComment(@PathVariable Long pid,
-	                          Comment comment) {
-		Post post = findPost(pid);
-		post.getComments().add(comment);
-	}
-	
-	@GetMapping("/{pid}/comments/{cid}")
-	public Comment getComment(@PathVariable Long pid,
-	                          @PathVariable Long cid) {
-		return findPost(pid).getComments()
-		                    .stream()
-		                    .filter(comment -> comment.getId().equals(cid))
-		                    .findFirst()
-		                    .orElseThrow(ResourceNotFoundException::new);
-	}
 	
 	private Post findPost(Long pid) {
 		return postService.getPostById(pid).orElseThrow(ResourceNotFoundException::new);

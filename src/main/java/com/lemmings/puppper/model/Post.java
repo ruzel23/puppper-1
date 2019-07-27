@@ -40,7 +40,6 @@ public class Post implements Serializable {
     @JoinColumn(name = "user_id")
     private User author;
     
-    @JsonManagedReference
     @OneToMany(mappedBy = "postId",cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Comment> comments;
   
