@@ -22,7 +22,7 @@ $(function () {
                 }
             }).then(function (response) {
                 console.log(response);
-                $("#postList").append(renderPost(response.data));
+                $(".postForm").after(renderPost(response.data));
             }).catch(function (error) {
                 console.log(error);
             });
@@ -34,7 +34,7 @@ $(function () {
         axios.delete('/api/posts/' + postId)
             .then(function (response) {
                 console.log(response);
-                $('.postItem').html('post deleted');
+                $(`#id_${postId}`).remove();
             });
     });
 
@@ -50,7 +50,6 @@ $(function () {
   </div>
 </div>`;
         body.replaceWith(newBody);
-
     });
 
     $(document).on('click', '.savePost', function () {
@@ -90,8 +89,8 @@ function init() {
     });
 }
 
-function postTemplate(authorInfo, dropMenu, postBody) {
-    return `<div>
+function postTemplate(authorInfo, dropMenu, postBody, post_id) {
+    return `<div id="post_${post_id}">
 <div class="postItem media mb-3 pr-3 pt-1 border border-primary rounded">
 	<img src="/images/userpic.svg" width="50" height="50" class="m-2">
 	<div class="media-body">
@@ -134,7 +133,7 @@ function renderPost(post) {
 <br/>
 <div id="root_comments_${post_id}"></div>`;
 
-    return postTemplate(authorInfo, dropMenu, postBody);
+    return postTemplate(authorInfo, dropMenu, postBody, post_id);
 }
 
 function showPosts(data) {
@@ -167,5 +166,5 @@ function dateTimeParser(date) {
     var hours = date.getHours();
     var minutes = "0" + date.getMinutes();
 
-    return `${day}-${month}-${year} ${hours}:${minutes.substr(-2)}`;
+    return `${day}-${month}-${year} `;
 }

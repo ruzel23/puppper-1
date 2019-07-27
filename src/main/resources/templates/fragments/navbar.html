@@ -6,28 +6,24 @@
 	<title>nav</title>
 </head>
 <body>
-<nav th:fragment="navigation" class="navbar navbar-expand-lg navbar-light bg-light">
-	<a class="navbar-brand" href="/home">Pupper</a>
-	<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown">
-		<span class="navbar-toggler-icon"></span>
-	</button>
-	<div class="collapse navbar-collapse" id="navbarNavDropdown">
-		<ul class="navbar-nav">
-			<li class="nav-item active">
-				<a class="nav-link" href="/timeline">Timeline <span class="sr-only">(current)</span></a>
-			</li>
-			<li class="nav-item dropdown" sec:authorize="isAuthenticated()">
-				<a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown">
-					<img src="/images/userpic.svg" height="30" width="30">
-				</a>
-				<div class="dropdown-menu" >
-					<a class="dropdown-item" href="/account">My Profile</a>
-					<a class="dropdown-item" href="/settings">Settings</a>
-					<a class="dropdown-item" href="/logout">Log out</a>
-				</div>
-			</li>
-		</ul>
-	</div>
+<nav th:fragment="navigation"
+     class="navbar justify-content-between mb-3 navbar-expand-lg navbar-dark bg-primary rounded-bottom">
+	<a class="navbar-brand h3" href="/home">Pupper</a>
+	<ul class="navbar-nav ">
+		<li class="nav-item active">
+			<a class="nav-link btn-outline-primary" href="/home">Home <span class="sr-only">(current)</span></a>
+		</li>
+		<li class="nav-item dropdown" sec:authorize="isAuthenticated()">
+			<a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown">
+				<img src="/images/userpic.svg" height="30" width="30">
+			</a>
+			<div class="dropdown-menu">
+				<a class="dropdown-item" href="/account">My Profile</a>
+				<a class="dropdown-item" href="/settings">Settings</a>
+				<a class="dropdown-item" href="/logout">Log out</a>
+			</div>
+		</li>
+	</ul>
 </nav>
 
 </body>
