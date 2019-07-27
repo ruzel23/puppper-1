@@ -7,20 +7,17 @@ import com.lemmings.puppper.util.CookieManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.filter.GenericFilterBean;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 
-//подробней разобраться
 public class JwtTokenFilter extends OncePerRequestFilter {
 
 
@@ -38,7 +35,6 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                                  HttpServletResponse response,
                                  FilterChain filterChain) throws IOException, ServletException {
 
-        //try {
         String token = jwtTokenProvider.resolveToken(request);
         if (token != null && jwtTokenProvider.validateToken(token)) {
 
@@ -51,13 +47,6 @@ public class JwtTokenFilter extends OncePerRequestFilter {
             validateUserCookies(request);
 
         }
-       /* } catch (JwtAuthenticationException ex) {
-            Cookie[] cookies = deleteCookie(request);
-            for (Cookie cookie : cookies) {
-                response.addCookie(cookie);
-                response.sendError(403);
-            }*/
-
         filterChain.doFilter(request, response);
     }
 
@@ -80,13 +69,5 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         } catch (NullPointerException | NotFoundCookieException e) {
             throw new JwtAuthenticationException("Cookie invalid");
         }
-    }
-
-    private Cookie[] deleteCookie(HttpServletRequest request) {
-        Cookie[] cookies = request.getCookies();
-        for (Cookie cookie : cookies) {
-            cookie.setMaxAge(0);
-        }
-        return cookies;
     }
 }

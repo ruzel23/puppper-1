@@ -2,6 +2,7 @@ package com.lemmings.puppper.controllers;
 
 import com.lemmings.puppper.dao.RoleDAO;
 import com.lemmings.puppper.model.Role;
+import com.lemmings.puppper.model.Status;
 import com.lemmings.puppper.model.User;
 import com.lemmings.puppper.security.jwt.JwtTokenProvider;
 import com.lemmings.puppper.services.UserService;
@@ -94,13 +95,16 @@ public class UserController {
                                        HttpServletResponse response,
                                        Model model) {
         try {
-            user.setRole(userService.findRoleByName("user")); // скорей всего не нужно
             String userEmail = user.getEmail();
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userEmail, user.getPassword()));
             User userFind = userService.findByEmail(userEmail);
 
             if (userFind == null) {
                 throw new UsernameNotFoundException("User with email: " + userEmail + " not found");
+            }
+
+            if (userFind.getStatus() == Status.DELETED) {
+                userService.restoreToStatus(userFind);
             }
 
             String token = jwtTokenProvider.createToken(userEmail);
@@ -122,7 +126,6 @@ public class UserController {
         } catch (AuthenticationException e) {
             throw new BadCredentialsException("Invalid email or password");
         }
-
     }
 
     @GetMapping("/update")
@@ -155,11 +158,33 @@ public class UserController {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String currentUserEmail = auth.getName();
         userService.deleteToStatus(currentUserEmail);
-        return "delete";
+        SecurityContextHolder.clearContext();
+        return "login";
     }
 
     @GetMapping("/settings")
     public String settings() {
         return "settings";
     }
+
+
+    @GetMapping("/restore")
+    public String restore(Model model) {
+        model.addAttribute("user", new User());
+        return "restore";
+    }
+
+    @PostMapping("/restore")
+    public ModelAndView restore(@ModelAttribute("user") User user) {
+        User userFind = userService.findByEmail(user.getEmail());
+        if (userFind == null) {
+            throw new UsernameNotFoundException("User with email: " + user.getEmail() + " not found");
+        }
+        if (userService.matchesPass(user.getPassword(), userFind.getPassword())) {
+            userService.restoreToStatus(userFind);
+        }
+
+        return  new ModelAndView("login");
+    }
+
 }
