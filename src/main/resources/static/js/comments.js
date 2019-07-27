@@ -150,12 +150,12 @@ $(function() {
                         id: data.message,
                         userName: userName,
                         userId: userId,
-                        parentId: parentId,
+                        parent: parentId,
                         content: content,
                         deleted: 0
                     };
-                    let containerName = "replies_list_" + comment.parentId;
-                    //replyParent = parentId;
+                    let containerName = "replies_list_" + comment.parent;
+                    replyParent = commentId;
                     displayComment(comment, "", containerName);
                     if (commentsGraphs.get(postId)[parentId] == null) {
                         document.getElementById("comment_" + parentId).innerHTML += '<button type=\"button\" class=\"btn btn-info\" data-toggle=\"collapse\" data-target=\"#replies_list_' + parentId + '\">Ответы</button>';
@@ -171,9 +171,12 @@ $(function() {
 function displayComment(comment, parentName, containerName) {
     let marginLeft = 0;
     let headingText = comment.userName;
-    if (comment.parent !== 0) {
+    //let replyButton = comment.id;
+    if (comment.parent != 0) {
         marginLeft = 48;
         headingText += " ответил " + parentName;
+        //replyButton = $("."+comment.parent).attr("id");
+        //document.getElementsByName(comment.parent);
     }
         let headRight = '';
         if (comment.userId == userId) {
@@ -214,6 +217,9 @@ function showComments(data, parentName, containerName) {
         let container = document.getElementById(containerName);
         let comment = data[i];
         let postId = comment.postId;
+        if (comment.parent == 0) {
+            replyParent = comment.id;
+        }
         if (comment.deleted == 0) {
             displayComment(comment, parentName, containerName);
         } else {
@@ -223,9 +229,6 @@ function showComments(data, parentName, containerName) {
         }
         if ((commentsGraphs.get(postId))[comment.id] != null) {
             container.innerHTML += '<button type=\"button\" class=\"btn btn-info\" data-toggle=\"collapse\" data-target=\"#replies_list_' + comment.id + '\">Ответы</button>';
-            if (comment.parent == 0) {
-                replyParent = comment.id;
-            }
             showComments(commentsGraphs.get(postId)[comment.id], comment.userName, "replies_list_" + comment.id);
         }
 
