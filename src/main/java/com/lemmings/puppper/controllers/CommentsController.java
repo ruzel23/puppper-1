@@ -3,8 +3,9 @@ package com.lemmings.puppper.controllers;
 import com.lemmings.puppper.model.AjaxBasicReturn;
 import com.lemmings.puppper.model.Comment;
 import com.lemmings.puppper.services.CommentsService;
+import com.lemmings.puppper.services.UserService;
 import com.lemmings.puppper.util.CookieManager;
-import org.hibernate.exception.ConstraintViolationException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Controller;

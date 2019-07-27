@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+<head>
+	<meta charset="UTF-8">
+	<title>form</title>
+</head>
+<body>
+<div th:fragment="postForm" class="postForm media mb-3 pr-3 pt-1 border border-primary rounded">
+	<img src="/images/userpic.svg" width="50" height="50" class="m-2">
+	<div class="media-body">
+		<div class="form-group">
+			<textarea class="form-control" id="postContent" placeholder="Type something..." rows="3"></textarea>
+			<button type="button" id="createPost" class="btn btn-outline-primary mt-2">Post</button>
+		</div>
+	</div>
+</div>
+</body>
+</html>

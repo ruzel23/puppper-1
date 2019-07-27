@@ -4,12 +4,14 @@ import com.lemmings.puppper.dao.PostRepository;
 import com.lemmings.puppper.model.Post;
 import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional
 public class PostService {
 
     private final PostRepository postRepository;
@@ -18,49 +20,35 @@ public class PostService {
         this.postRepository = postRepository;
     }
 
+    @Transactional(readOnly = true)
     public List<Post> getAllPosts() {
         return postRepository.findAll();
     }
 
-    public List<Post> getAllPostsByUserId(Long userId) {
-        return postRepository.findAll(Example.of(
-                Post.builder()
-                        .authorId(userId)
-                        .build()));
+    @Transactional(readOnly = true)
+    public List<Post> getUserPosts(Long authorId) {
+        return postRepository.findAllByAuthorId(authorId);
     }
 
-    public Post getPostById(Long id) {
-        return findPost(id).orElse(new Post());
-    }
-
-    public Post createNewPost(Long userId, String content) {
-        return postRepository.save(
-                Post.builder()
-                        .authorId(userId)
-                        .content(content)
-                        .creationDate(LocalDateTime.now().toString())
-                        .build());
-    }
-
-    public Post updatePost(Long id, String content) {
-        Optional<Post> toUpdate = findPost(id);
-
-        if (toUpdate.isPresent()) {
-            Post updated = toUpdate.get();
-            updated.setContent(content);
-
-            return postRepository.save(updated);
-        }
-
-        return new Post();
-    }
-
-    public void deletePost(Long id) {
-        findPost(id).ifPresent(postRepository::delete);
-    }
-
-    private Optional<Post> findPost(Long id) {
+    @Transactional(readOnly = true)
+    public Optional<Post> getPostById(Long id) {
         return postRepository.findById(id);
     }
+
+    public Post save(Post post) {
+        return postRepository.save(post);
+    }
+
+//    public Post update(Post post) {
+//        Post toUpdate = postRepository.getOne(post.getId());
+//        toUpdate.setContent(post.getContent());
+//
+//        return postRepository.save(toUpdate);
+//    }
+
+    public void delete(Long id) {
+        postRepository.deleteById(id);
+    }
+
 
 }

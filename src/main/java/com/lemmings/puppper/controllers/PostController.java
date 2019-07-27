@@ -1,63 +1,78 @@
 package com.lemmings.puppper.controllers;
 
+import com.lemmings.puppper.exceptions.ResourceNotFoundException;
 import com.lemmings.puppper.model.Post;
+import com.lemmings.puppper.services.UserService;
 import com.lemmings.puppper.services.PostService;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+
+import lombok.RequiredArgsConstructor;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 
-@Controller
-@RequestMapping("/timeline")
+@RestController
+@RequestMapping("/api/posts")
+@RequiredArgsConstructor
 public class PostController {
-
-    private final PostService postService;
-
-    public PostController(PostService postService) {
-        this.postService = postService;
-    }
-
-    @GetMapping
-    public String list(Model model) {
-        List<Post> posts = postService.getAllPosts();
-        model.addAttribute("post", new Post());
-        model.addAttribute("posts", posts);
-
-        return "timeline";
-    }
-
-    @GetMapping("/{pid}")
-    public String show(@PathVariable String pid, Model model) {
-        Post post = postService.getPostById(Long.parseLong(pid));
-        model.addAttribute("post", post);
-
-        return pid.toString();
-    }
-
-    @PostMapping
-    public String add(@RequestParam("authorId") String authorId,
-                      @RequestParam("content") String text,
-                      Model model) {
-        postService.createNewPost(Long.parseLong(authorId), text);
-
-        return "redirect:/timeline";
-    }
-
-    @PutMapping("/{pid}")
-    public String edit(@PathVariable String pid,
-                       @RequestParam String text,
-                       Model model) {
-        postService.updatePost(Long.parseLong(pid), text);
-
-        return "redirect:/" + pid;
-    }
-
-    @PostMapping("/{pid}")
-    public String remove(@PathVariable String pid) {
-        postService.deletePost(Long.parseLong(pid));
-
-        return "redirect:/timeline";
-    }
+	
+	private final PostService postService;
+	private final UserService userService;
+	
+	@ResponseStatus(HttpStatus.OK)
+	@GetMapping
+	public List<Post> listPosts() {
+		return postService.getAllPosts();
+	}
+	
+	@ResponseStatus(HttpStatus.OK)
+	@GetMapping("/{pid}")
+	public Post getPost(@PathVariable Long pid) {
+		return findPost(pid);
+	}
+	
+	@PostMapping
+	public ResponseEntity<Post> createPost(@RequestBody @Valid Post post,
+	                                       BindingResult result) {
+		if (result.hasErrors()) {
+			throw new IllegalArgumentException("invalid request data");
+		}
+		
+		Long authorId = post.getAuthor().getId();
+		post.setAuthor(userService.findById(authorId));
+		
+		return ResponseEntity
+				.status(HttpStatus.CREATED)
+				.body(postService.save(post));
+	}
+	
+	@PutMapping("/{pid}")
+	public ResponseEntity<Post> updatePost(@RequestBody Post post,
+	                                       @PathVariable Long pid,
+	                                       BindingResult result) {
+		if (result.hasErrors()) {
+			throw new IllegalArgumentException("invalid request data");
+		}
+		
+		Post toUpdate = findPost(pid);
+		toUpdate.setContent(post.getContent());
+		
+		return ResponseEntity.ok(postService.save(toUpdate));
+	}
+	
+	@DeleteMapping("/{pid}")
+	public void deletePost(@PathVariable Long pid) {
+		Post post = findPost(pid);
+		postService.delete(pid);
+	}
+	
+	
+	private Post findPost(Long pid) {
+		return postService.getPostById(pid).orElseThrow(ResourceNotFoundException::new);
+	}
 }
