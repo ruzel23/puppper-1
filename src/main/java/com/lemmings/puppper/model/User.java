@@ -12,6 +12,7 @@ import java.util.List;
 @Entity
 @Table(name = "users")
 @Data
+@AllArgsConstructor
 public class User implements Serializable {
 
     @Id
@@ -48,15 +49,9 @@ public class User implements Serializable {
         this.email = email;
         this.password = password;
         this.status = status;
-        this.role = role;
-        roles = new ArrayList<>();
-        roles.add(role);
     }
 
     public void setRole(Role role) {
         this.role = role;
-        System.out.println("Role: " + role.toString());
-        roles = new ArrayList<>();
-        roles.add(role);
     }
 }

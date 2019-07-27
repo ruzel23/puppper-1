@@ -12,7 +12,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -22,7 +21,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
 
-// подорбней разобраться с этим классом
 @Component
 public class JwtTokenProvider {
 
@@ -46,12 +44,9 @@ public class JwtTokenProvider {
         secret = Base64.getEncoder().encodeToString(secret.getBytes());
     }
 
-    //генерится по эмайлу и роли
-    public String createToken(String email/*, *//*List<Role> roles*/) {
+    public String createToken(String email) {
 
         Claims claims = Jwts.claims().setSubject(email);
-        claims.put("role", "user");
-        //claims.put("roles", getRoleNames(roles));
 
         Date now = new Date();
         Date validity = new Date(now.getTime() + validityInMilliseconds);
@@ -66,12 +61,20 @@ public class JwtTokenProvider {
 
     public Authentication getAuthentication(String token) {
         UserDetails userDetails = this.userDetailsService.loadUserByUsername(getEmail(token));
-        return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
+        return new UsernamePasswordAuthenticationToken(
+                userDetails,
+                "",
+                userDetails.getAuthorities());
     }
 
-    //
+
     public String getEmail(String token) {
-        return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody().getSubject();
+        return Jwts
+                .parser()
+                .setSigningKey(secret)
+                .parseClaimsJws(token)
+                .getBody()
+                .getSubject();
     }
 
     public String resolveToken(HttpServletRequest request) {
@@ -100,7 +103,7 @@ public class JwtTokenProvider {
     }
 
 
-    // возожно нужно по-другому, возможно не лист
+/*    // возожно нужно по-другому, возможно не лист
     private List<String> getRoleNames(List<Role> userRoles) {
         List<String> result = new ArrayList<>();
 
@@ -108,6 +111,6 @@ public class JwtTokenProvider {
             result.add(role.getName());
         });
         return result;
-    }
+    }*/
 
 }
