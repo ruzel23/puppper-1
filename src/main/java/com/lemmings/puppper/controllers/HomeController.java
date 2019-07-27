@@ -10,12 +10,12 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping(value = {"/", "/home"})
 public class HomeController {
 
-    @GetMapping
+    @GetMapping("/comments")
     public ModelAndView getCommentsPage() {
         return new ModelAndView("comments");
     }
     
-    @GetMapping("/timeline")
+    @GetMapping
     public ModelAndView getTimelinePage() {
         return new ModelAndView("timeline");
     }
