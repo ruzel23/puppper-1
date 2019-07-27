@@ -125,7 +125,7 @@ function renderPost(post) {
     //only show post options if it was published by current user
     let dropMenu = user_id === post.author.id.toString() ?
         `<button class="dropdown-item editPost" id="${post_id}">Edit</button>
-<button class="dropdown-item deletePost" id="${post_id}">Delete</button>` : ``;
+<button class="dropdown-item deletePost" id="${post_id}">Delete</button>` : '';
 
 
     let postBody = `<p class="lead" id="content_${post_id}">${post.content}</p>
@@ -166,7 +166,6 @@ function dateTimeParser(date) {
     var day = date.getDate();
     var hours = date.getHours();
     var minutes = "0" + date.getMinutes();
-    var seconds = "0" + date.getSeconds();
 
-    return `${day}-${month}-${year} ${hours}:${minutes.substr(-2)}:${seconds.substr(-2)}`;
+    return `${day}-${month}-${year} ${hours}:${minutes.substr(-2)}`;
 }

@@ -7,15 +7,14 @@ var editFooter = "";
 var editing = false;
 const showCommentsMap = new Map();
 
-$(function() {
+$(function () {
     init();
 
     function getCookie(name) {
         let match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
         if (match) {
             return match[2];
-        }
-        else {
+        } else {
             console.log('--something went wrong---');
         }
     }
@@ -39,12 +38,12 @@ $(function() {
         if (showCommentsMap.get(postId) == null || showCommentsMap.get(postId) === false) {
             showCommentsMap.set(postId, true);
             showCommentHead(postId);
-            ajaxWrapper("/comments/getComments", "GET", {post_id : postId}, function(data) {
+            ajaxWrapper("/comments/getComments", "GET", {post_id: postId}, function (data) {
                 commentsGraphs.set(parseInt(postId), data);
                 showComments(data[0], "", 'root_comments_' + postId);
-                $('.auto-size').each(function() {
+                $('.auto-size').each(function () {
                     autoSize(this);
-                }).on('input', function() {
+                }).on('input', function () {
                     autoSize(this);
                 });
             });
@@ -55,8 +54,8 @@ $(function() {
         event.preventDefault();
         let postId = $(this).attr('id');
         let content = $("#post_content_" + postId).val();
-        ajaxWrapper("/comments/addComment", "POST", {post_id : postId, content : content, parent_id : 0},
-            function(data) {
+        ajaxWrapper("/comments/addComment", "POST", {post_id: postId, content: content, parent_id: 0},
+            function (data) {
                 if (data.success) {
                     let commentId = data.message;
                     let mainBlock = '<div class = \"panel panel-default\" id = \"comment_' + commentId + '\">' +
@@ -82,18 +81,18 @@ $(function() {
         let parentId = $(this).attr("id");
         let commentId = $(this).attr("name");
         let userName = $("#user_" + commentId).attr("name");
-        $("#reply_text_area_"+parentId).val(userName+", ");
+        $("#reply_text_area_" + parentId).val(userName + ", ");
         if (parentId === 0) {
             parentId = commentId;
         }
-        $("#reply_"+parentId).val(commentId);
+        $("#reply_" + parentId).val(commentId);
     });
 
     $(document).on("click", ".delete", function () {
         event.preventDefault();
         let commentId = $(this).attr("id");
-        ajaxWrapper("/comments/deleteComment", "DELETE", {comment_id : commentId},
-            function(data) {
+        ajaxWrapper("/comments/deleteComment", "DELETE", {comment_id: commentId},
+            function (data) {
                 $("#comment_" + commentId).html("Комментарий удален :3");
             });
     });
@@ -102,12 +101,12 @@ $(function() {
         let commentId = $(this).attr("id");
         if (!editing) {
             editing = true;
-            editContent = $("#comment_content_"+ commentId).clone();
-            editFooter = $("#comment_footer_"+commentId).clone();
-            $("#comment_content_"+commentId+"").html("<textarea class=\"form-control\" id = \"editText\" rows=\"1\"></textarea>");
+            editContent = $("#comment_content_" + commentId).clone();
+            editFooter = $("#comment_footer_" + commentId).clone();
+            $("#comment_content_" + commentId + "").html("<textarea class=\"form-control\" id = \"editText\" rows=\"1\"></textarea>");
             let footEdit = '<button type=\"button\" class = \"btn btn-default saveEdit\" id = \"' + commentId + '\">Сохранить</button>' +
                 '<button type=\"button\" class = \"btn btn-default cancel\" id = \"' + commentId + '\">Отменить</button>';
-            $("#comment_footer_"+commentId).html(footEdit);
+            $("#comment_footer_" + commentId).html(footEdit);
         }
     });
 
@@ -115,13 +114,13 @@ $(function() {
         let commentId = $(this).attr("id");
         let newContent = $("#editText").val();
         if (editContent.text() === newContent || newContent === "") {
-            $("#comment_content_"+commentId).replaceWith(editContent);
-            $("#comment_footer_"+commentId).replaceWith(editFooter);
+            $("#comment_content_" + commentId).replaceWith(editContent);
+            $("#comment_footer_" + commentId).replaceWith(editFooter);
         } else {
-            ajaxWrapper("/comments/editComment", "POST", {id : commentId, content : newContent}, function(data) {
+            ajaxWrapper("/comments/editComment", "POST", {id: commentId, content: newContent}, function (data) {
                 if (data.success) {
-                    $("#comment_content_"+commentId).html(data.message);
-                    $("#comment_footer_"+commentId).replaceWith(editFooter);
+                    $("#comment_content_" + commentId).html(data.message);
+                    $("#comment_footer_" + commentId).replaceWith(editFooter);
                 } else {
                     alert(data.message);
                 }
@@ -132,8 +131,8 @@ $(function() {
 
     $(document).on("click", ".cancel", function () {
         var commentId = $(this).attr("id");
-        $("#comment_content_"+commentId).replaceWith(editContent);
-        $("#comment_footer_"+commentId).replaceWith(editFooter);
+        $("#comment_content_" + commentId).replaceWith(editContent);
+        $("#comment_footer_" + commentId).replaceWith(editFooter);
         editing = false;
     });
 
@@ -143,8 +142,8 @@ $(function() {
         let content = $("#reply_text_area_" + commentId).val();
         let parentId = $("#reply_" + commentId).val();
         let postId = parseInt($("#reply_" + commentId).attr('name'));
-        ajaxWrapper("/comments/addComment", "POST", {post_id : postId, content : content, parent_id : parentId},
-            function(data) {
+        ajaxWrapper("/comments/addComment", "POST", {post_id: postId, content: content, parent_id: parentId},
+            function (data) {
                 if (data.success) {
                     var comment = {
                         id: data.message,
@@ -178,18 +177,20 @@ function displayComment(comment, parentName, containerName) {
         //replyButton = $("."+comment.parent).attr("id");
         //document.getElementsByName(comment.parent);
     }
-        let headRight = '';
-        if (comment.userId == userId) {
-            headRight = '<button type=\"button\" class=\"btn btn-link edit\" id = \"'+ comment.id +'\">Редактировать</button>' +
-                '<button type=\"button\" class=\"btn btn-link delete\" id = \"'+ comment.id +'\">Удалить</button>';
-        }
-        document.getElementById(containerName).innerHTML += '<div class = \"panel panel-default\" id = \"comment_' + comment.id + '\" style=\"margin-left: ' + marginLeft + 'px\">' +
-            '<div class = \"panel-heading\" id = \"user_' + comment.id + '\" name = \"'+ comment.userName +'\">' + headingText + '' + headRight +
-            '</div>' +
-            '<div class = \"panel-body\" id = \"comment_content_'+ comment.id+'\">' + comment.content + '</div>' +
-            '<div class = \"panel-footer\" align=\"right\" id = \"comment_footer_' + comment.id + '\">' +
-            '<button type=\"button\" class = \"btn btn-default reply\" name = \"' + comment.id + '\" id = \"'+ replyParent +'\">Ответить</button>' +
-            '</div><div id=\"replies_list_' + comment.id + '\" class = \"collapse\"></div></div>';
+    let headRight = '';
+    if (comment.userId == userId) {
+        headRight = '<button type=\"button\" class=\"btn btn-link edit\" id = \"' + comment.id + '\">Редактировать</button>' +
+            '<button type=\"button\" class=\"btn btn-link delete\" id = \"' + comment.id + '\">Удалить</button>';
+    }
+    document.getElementById(containerName).innerHTML += '<div class = \"panel border border-secondary-rounded' +
+        ' panel-default\" id =' +
+        ' \"comment_' + comment.id + '\" style=\"margin-left: ' + marginLeft + 'px\">' +
+        '<div class = \"panel-heading\" id = \"user_' + comment.id + '\" name = \"' + comment.userName + '\">' + headingText + '' + headRight +
+        '</div>' +
+        '<div class = \"panel-body\" id = \"comment_content_' + comment.id + '\">' + comment.content + '</div>' +
+        '<div class = \"panel-footer\" align=\"right\" id = \"comment_footer_' + comment.id + '\">' +
+        '<button type=\"button\" class = \"btn btn-outline-dark reply\" name = \"' + comment.id + '\" id = \"' + replyParent + '\">Ответить</button>' +
+        '</div><div id=\"replies_list_' + comment.id + '\" class = \"collapse\"></div></div>';
 }
 
 function displayDeletedComment(comment, container) {
@@ -197,7 +198,7 @@ function displayDeletedComment(comment, container) {
     if (comment.parent !== 0) {
         marginLeft = 48;
     }
-    let mainBlock = '<div class = \"panel panel-default\" style=\"margin-left: ' + marginLeft + 'px\">' +
+    let mainBlock = '<div class = \"panel border border-secondary rounded panel-default\" style=\"margin-left: ' + marginLeft + 'px\">' +
         '<div class = \"panel-body\" id = \"comment_content_' + comment.id + '\">Комментарий удален</div>' +
         '</div><div id=\"replies_list_' + comment.id + '\" class = \"collapse\"></div>';
     container.innerHTML += mainBlock;
@@ -228,15 +229,17 @@ function showComments(data, parentName, containerName) {
             }
         }
         if ((commentsGraphs.get(postId))[comment.id] != null) {
-            container.innerHTML += '<button type=\"button\" class=\"btn btn-info\" data-toggle=\"collapse\" data-target=\"#replies_list_' + comment.id + '\">Ответы</button>';
+            container.innerHTML += '<button type=\"button\" class=\"btn btn-outline-dark\" data-toggle=\"collapse\"' +
+                ' data-target=\"#replies_list_' + comment.id + '\">Ответы</button>';
             showComments(commentsGraphs.get(postId)[comment.id], comment.userName, "replies_list_" + comment.id);
         }
 
         if (comment.parent === 0) {
-            container.innerHTML += '<br/><form class=\"form-horizontal\"><div class=\"form-group\">' +
+            container.innerHTML += '<br/><form class=\"form-horizontal mt-1\"><div class=\"form-group border' +
+                ' border-secondary-rounded\">' +
                 '<input type=\"hidden\" name=\"' + comment.postId + '\" id=\"reply_' + comment.id + '\" value=\"' + comment.id + '\"/>' +
                 '<textarea class=\"col-xs-10 auto-size\" name =\"comment_content\" id = \"reply_text_area_' + comment.id + '\" rows=\"2\" style=\"margin-left: 48px\"></textarea>' +
-                '<button type=\"button\" class=\"btn btn-default submit2\" id = \"' + comment.id + '\">Отправить</button>' +
+                '<button type=\"button\" class=\"btn btn-outline-primary submit2\" id = \"' + comment.id + '\">Отправить</button>' +
                 '</div></form><br/>';
         }
     }
