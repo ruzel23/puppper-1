@@ -22,7 +22,7 @@ $(function () {
                 }
             }).then(function (response) {
                 console.log(response);
-                $("#postList").prepend(renderPost(response.data));
+                $(".postForm").after(renderPost(response.data));
             }).catch(function (error) {
                 console.log(error);
             });
