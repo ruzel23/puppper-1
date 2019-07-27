@@ -44,6 +44,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/signup").permitAll()
                 .antMatchers("/login").permitAll()
+                .antMatchers("/restore").permitAll()
                 .anyRequest().authenticated()
                 .and().logout().deleteCookies("access_token", "user_name", "user_id", "role").logoutUrl("/logout")
                     .logoutSuccessUrl("/login").clearAuthentication(true)

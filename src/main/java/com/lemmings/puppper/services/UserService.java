@@ -7,12 +7,9 @@ import com.lemmings.puppper.model.Status;
 import com.lemmings.puppper.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -30,11 +27,9 @@ public class UserService {
 
     public User register(User user) {
         Role roleUser = findRoleByName("user");
-
-
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setRole(roleUser);
-        user.setStatus(Status.ACTIVE); //default
+        user.setStatus(Status.ACTIVE);
 
         User registeredUser = userDAO.save(user);
 
@@ -81,20 +76,31 @@ public class UserService {
     }
 
     public User makeAdmin(String email, String password) {
+
         if (!password.equals(passwordServ)) {
             throw new IllegalArgumentException("not correct password");
         }
+
         User user = userDAO.findByEmail(email);
         Role role = findRoleByName("admin");
         user.setRole(role);
         userDAO.save(user);
         return user;
+
     }
 
-    //скорей всего нужна метка и не удалять с базы
+    public User restoreToStatus(User user) {
+        user.setStatus(Status.ACTIVE);
+        userDAO.save(user);
+        return user;
+    }
+
     public void delete(Long id) {
         userDAO.deleteById(id);
     }
 
 
+    public boolean matchesPass (String rawPass, String encodedPass) {
+        return passwordEncoder.matches(rawPass, encodedPass);
+    }
 }
